@@ -6,34 +6,34 @@ import { Button, Col, Form, Input, Row, Typography } from "antd";
 import { LockOutlined, UserOutlined } from "@ant-design/icons";
 import axios from 'axios';
 
-const Login: React.FC = () => {
+const Register: React.FC = () => {
   const onFinish = async (values: any) => {
     try {
-      const response = await axios.post('/api/login', values);
+      const response = await axios.post('/api/register', values);
       console.log(response.data.message);
-      // Anda bisa menambahkan logika untuk menangani login berhasil di sini
+      // Anda bisa menambahkan logika untuk menangani pendaftaran berhasil di sini
     } catch (error: any) {
-      console.error('Login failed:', error.response?.data?.message || 'Unknown error');
-      // Anda bisa menambahkan logika untuk menangani login gagal di sini
+      console.error('Registration failed:', error.response?.data?.message || 'Unknown error');
+      // Anda bisa menambahkan logika untuk menangani pendaftaran gagal di sini
     }
   };
 
   return (
     <div style={{ 
-        backgroundImage: "url('/logoKopi.svg')",
+        backgroundImage: "url('./logoKopi.svg')",
         backgroundSize: "cover",
         backgroundRepeat: "no-repeat",
         height: "100vh",
         overflow: "hidden",
     }}>
       <Head>
-        <title>Warphi - Login</title>
+        <title>Warphi - Register</title>
       </Head>
       <Row justify="center" align="middle" style={{ height: "100%" }}>
         <Col>
           <div
             style={{
-              backgroundImage: "url('./logoKopi.svg')",
+              backgroundImage: "url('/logoKopi.svg')",
               backgroundSize: "cover",
               backgroundPosition: "center",
               borderRadius: "15px",
@@ -62,7 +62,7 @@ const Login: React.FC = () => {
               />
             </div>
 
-            {/* Right Side - Login Form */}
+            {/* Right Side - Register Form */}
             <div style={{ 
                 width: "50%", 
                 padding: "2rem", 
@@ -72,9 +72,9 @@ const Login: React.FC = () => {
                 justifyContent: "center" 
             }}>
               <Typography.Title level={3} style={{ textAlign: "center" }}>
-                Login
+                Register
               </Typography.Title>
-              <Form layout="vertical" name="login_form" onFinish={onFinish} initialValues={{ remember: true }}>
+              <Form layout="vertical" name="register_form" onFinish={onFinish} initialValues={{ remember: true }}>
                 <Form.Item
                   name="email"
                   rules={[{ required: true, message: "Please input your email!" }]}
@@ -101,12 +101,12 @@ const Login: React.FC = () => {
                     block
                     style={{ backgroundColor: "#543310", borderColor: "#543310" }}
                   >
-                    Login
+                    Register
                   </Button>
                 </Form.Item>
                 <Form.Item>
-                  <a href="/register" style={{ color: "#4F93F9", display: "block", textAlign: "center" }}>
-                    Don't have an account? Register here.
+                  <a href="/login" style={{ color: "#4F93F9", display: "block", textAlign: "center" }}>
+                    Already have an account? Login here.
                   </a>
                 </Form.Item>
               </Form>
@@ -118,4 +118,4 @@ const Login: React.FC = () => {
   );
 };
 
-export default Login;
+export default Register;
