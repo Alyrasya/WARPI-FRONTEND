@@ -1,13 +1,15 @@
+"use client"
 import React from 'react';
 import Image from 'next/image';
+import { FacebookOutlined, InstagramOutlined, PhoneOutlined } from '@ant-design/icons';
 
 const Navbar = () => {
   return (
     <>
       {/* Navbar */}
-      <nav className="bg-[#543310] py-4 px-6 sm:px-8 md:px-16 lg:px-32 xl:px-48 flex items-center justify-between">
+      <nav className="bg-[#543310] py-6 px-6 sm:px-8 md:px-10 lg:px-32 xl:px-48 flex justify-center justify-between">
   {/* Left side: Logo */}
-  <div className="flex items-center">
+  <div className="flex items-center  justify-center">
     <Image
       src="/logo.svg"
       alt="Logo"
@@ -127,16 +129,29 @@ const Navbar = () => {
     </div>
   </div>
 </section>
-
-
       {/* Footer */}
       <footer className="bg-[#543310] text-white py-6 sm:py-8">
-        <div className="flex flex-col sm:flex-row justify-center gap-4 sm:gap-6">
-          <p>Facebook</p>
-          <p>Instagram</p>
-          <p>+621024089088</p>
-        </div>
-      </footer>
+  <div className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6 text-center">
+    {/* Facebook Section */}
+    <div className="flex items-center gap-2 justify-center">
+      <FacebookOutlined style={{ fontSize: '20px', color: 'white' }} />
+      <p className="text-white leading-none">Facebook</p>
+    </div>
+
+    {/* Instagram Section */}
+    <div className="flex items-center gap-2 justify-center">
+      <InstagramOutlined style={{ fontSize: '20px', color: 'white' }} />
+      <p className="text-white leading-none">Instagram</p>
+    </div>
+
+    {/* Phone Section */}
+    <div className="flex items-center gap-2 justify-center">
+      <PhoneOutlined style={{ fontSize: '20px', color: 'white' }} />
+      <p className="text-white leading-none">+621024089088</p>
+    </div>
+  </div>
+</footer>
+
     </>
   );
 };
