@@ -154,7 +154,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               >
                 <UserOutlined style={{ fontSize: '18px', fontWeight: 'bold' }} />
               </Avatar>
-              <div style={{ display: 'flex', flexDirection: 'column', marginLeft: '10px', lineHeight: '1.5' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', marginLeft: '10px', lineHeight: '1.3' }}>
                 <span style={{ color: '#FFF7E9' }}>Username</span>
                 <span style={{ color: '#FFF7E9' }}>Rolename</span>
               </div>
