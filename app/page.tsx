@@ -10,7 +10,7 @@ export default function Home() {
 
   useEffect(() => {
     if(router) {
-      router.push('/card1');
+      router.push('/home');
     }
   }, [router]);
 

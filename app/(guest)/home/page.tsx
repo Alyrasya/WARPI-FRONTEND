@@ -7,20 +7,20 @@ const Home = () => {
   return (
     <>
       {/* Navbar */}
-      <nav className="bg-[#543310] py-6 px-6 sm:px-8 md:px-10 lg:px-32 xl:px-48 flex justify-center justify-between">
+      <nav className="bg-[#543310] py-2 px-2 sm:px-4 md:px-4 lg:px-19 xl:px-8 flex justify-between items-center">
   {/* Left side: Logo */}
-  <div className="flex items-center  justify-center">
+  <div className="flex items-center">
     <Image
       src="/logo.svg"
       alt="Logo"
-      width={40}
-      height={40}
+      width={75}
+      height={60.27}
       className="rounded-full"
     />
     <h1 className="text-white text-lg sm:text-xl md:text-2xl ml-3 font-bold">WARπ</h1>
   </div>
 
-  {/* Right side: Search, Sign In, Sign Up */}
+  {/* Right side: Sign In, Sign Up */}
   <div className="flex items-center space-x-4">
     <a href="/login" className="text-white text-sm sm:text-base">
       sign in
@@ -79,21 +79,20 @@ const Home = () => {
       {/* Best Food Section */}
       <section className="py-8 sm:py-12">
   <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-4 sm:mb-6">Best Food</h2>
-  <div className="flex flex-col sm:flex-row justify-center gap-6">
-    <div className="bg-white shadow-lg rounded-lg p-4 max-w-xs">
+  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 justify-center">
+    <div className="bg-white shadow-lg rounded-lg p-4 max-w-xs mx-auto">
       <Image src="/makanan.svg" alt="Coffee" width={250} height={200} className="rounded-md" />
       <h3 className="mt-4 text-lg font-bold">satay</h3>
       <p className="text-sm">Rp139.900</p>
       <p className="text-sm text-gray-500">4rb+ sold</p>
     </div>
-    <div className="bg-white shadow-lg rounded-lg p-4 max-w-xs">
+    <div className="bg-white shadow-lg rounded-lg p-4 max-w-xs mx-auto">
       <Image src="/makanan.svg" alt="Satay" width={250} height={200} className="rounded-md" />
       <h3 className="mt-4 text-lg font-bold">Satay</h3>
       <p className="text-sm">Rp139.900</p>
       <p className="text-sm text-gray-500">4rb+ sold</p>
     </div>
-    {/* Card Baru */}
-    <div className="bg-white shadow-lg rounded-lg p-4 max-w-xs">
+    <div className="bg-white shadow-lg rounded-lg p-4 max-w-xs mx-auto">
       <Image src="/makanan.svg" alt="Noodles" width={250} height={200} className="rounded-md" />
       <h3 className="mt-4 text-lg font-bold">satay</h3>
       <p className="text-sm">Rp129.900</p>
@@ -104,24 +103,22 @@ const Home = () => {
 
 
       {/* Best Coffee & Drink Section */}
-      {/* Best Coffee & Drink Section */}
-<section className="py-8 sm:py-12 bg-gray-100">
+      <section className="py-8 sm:py-12 bg-gray-100">
   <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-4 sm:mb-6">Best Coffee & Drink</h2>
-  <div className="flex flex-col sm:flex-row justify-center gap-6">
-    <div className="bg-white shadow-lg rounded-lg p-4 max-w-xs">
+  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 justify-center">
+    <div className="bg-white shadow-lg rounded-lg p-4 max-w-xs mx-auto">
       <Image src="/templateKopi.svg" alt="Coffee Latte" width={250} height={200} className="rounded-md" />
       <h3 className="mt-4 text-lg font-bold">coffe</h3>
       <p className="text-sm">Rp139.900</p>
       <p className="text-sm text-gray-500">4rb+ sold</p>
     </div>
-    <div className="bg-white shadow-lg rounded-lg p-4 max-w-xs">
+    <div className="bg-white shadow-lg rounded-lg p-4 max-w-xs mx-auto">
       <Image src="/templateKopi.svg" alt="Satay" width={250} height={200} className="rounded-md" />
       <h3 className="mt-4 text-lg font-bold">Coffe</h3>
       <p className="text-sm">Rp139.900</p>
       <p className="text-sm text-gray-500">4rb+ sold</p>
     </div>
-    {/* Card Baru */}
-    <div className="bg-white shadow-lg rounded-lg p-4 max-w-xs">
+    <div className="bg-white shadow-lg rounded-lg p-4 max-w-xs mx-auto">
       <Image src="/templateKopi.svg" alt="Iced Americano" width={250} height={200} className="rounded-md" />
       <h3 className="mt-4 text-lg font-bold">Coffe</h3>
       <p className="text-sm">Rp119.900</p>
@@ -131,27 +128,31 @@ const Home = () => {
 </section>
       {/* Footer */}
       <footer className="bg-[#543310] text-white py-6 sm:py-8">
-  <div className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6 text-center">
-    {/* Facebook Section */}
-    <div className="flex items-center gap-2 justify-center">
-      <FacebookOutlined style={{ fontSize: '20px', color: 'white' }} />
-      <p className="text-white leading-none">Facebook</p>
-    </div>
+  <div className="container mx-auto px-4">
+    <div className="flex flex-col justify-center items-center gap-6">
+      {/* Social Media Links */}
+      <div className="flex gap-6">
+        {/* Facebook Section */}
+        <a href="#" className="flex items-center gap-2">
+          <FacebookOutlined style={{ fontSize: '20px', color: 'white' }} />
+          <span className="text-white">Facebook</span>
+        </a>
 
-    {/* Instagram Section */}
-    <div className="flex items-center gap-2 justify-center">
-      <InstagramOutlined style={{ fontSize: '20px', color: 'white' }} />
-      <p className="text-white leading-none">Instagram</p>
-    </div>
+        {/* Instagram Section */}
+        <a href="#" className="flex items-center gap-2">
+          <InstagramOutlined style={{ fontSize: '20px', color: 'white' }} />
+          <span className="text-white">Instagram</span>
+        </a>
 
-    {/* Phone Section */}
-    <div className="flex items-center gap-2 justify-center">
-      <PhoneOutlined style={{ fontSize: '20px', color: 'white' }} />
-      <p className="text-white leading-none">+621024089088</p>
+        {/* Phone Section */}
+        <a href="tel:+621024089088" className="flex items-center gap-2">
+          <PhoneOutlined style={{ fontSize: '20px', color: 'white' }} />
+          <span className="text-white">+621024089088</span>
+        </a>
+      </div>
     </div>
   </div>
 </footer>
-
     </>
   );
 };
