@@ -17,20 +17,25 @@ const { Header, Sider, Content } = Layout;
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [selectedKey, setSelectedKey] = useState('1'); // State untuk menyimpan menu yang dipilih
+  const [pageTitle, setPageTitle] = useState('Dashboard'); // State untuk menyimpan judul halaman
   const pathname = usePathname();
   const router = useRouter();
 
-  // Effect untuk mendeteksi perubahan route dan mengubah selected menu
+  // Effect untuk mendeteksi perubahan route dan mengubah selected menu serta judul
   useEffect(() => {
     if (pathname) {
       if (pathname.includes('/admin/dashboard')) {
         setSelectedKey('1');
+        setPageTitle('Dashboard');
       } else if (pathname.includes('/admin/management/account')) {
         setSelectedKey('2');
-      } else if (pathname.includes('/admin/management/product')) {
+        setPageTitle('Manage Account');
+      } else if (pathname.includes('/admin/management/category')) {
         setSelectedKey('3');
+        setPageTitle('Manage Menu');
       } else if (pathname.includes('/admin/management/report')) {
         setSelectedKey('4');
+        setPageTitle('Sales Report');
       }
     }
   }, [pathname]);
@@ -62,8 +67,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   ];
 
   // Fungsi untuk menghandle klik di sidebar
-  const handleMenuClick = (key: string, path: string) => {
+  const handleMenuClick = (key: string, path: string, title: string) => {
     setSelectedKey(key); // Update selected menu item
+    setPageTitle(title); // Update page title
     router.push(path); // Navigasi ke halaman baru
   };
 
@@ -73,28 +79,28 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       key: '1',
       icon: <DashboardOutlined />,
       label: 'Dashboard',
-      onClick: () => handleMenuClick('1', '/admin/dashboard'),
+      onClick: () => handleMenuClick('1', '/admin/dashboard', 'Dashboard'),
       style: { backgroundColor: selectedKey === '1' ? 'rgba(255, 255, 255, 0.2)' : 'transparent' },
     },
     {
       key: '2',
       icon: <UserOutlined />,
       label: 'Manage Account',
-      onClick: () => handleMenuClick('2', '/admin/management/account'),
+      onClick: () => handleMenuClick('2', '/admin/management/account', 'Manage Account'),
       style: { backgroundColor: selectedKey === '2' ? 'rgba(255, 255, 255, 0.2)' : 'transparent' },
     },
     {
       key: '3',
       icon: <ShoppingOutlined />,
       label: 'Manage Menu',
-      onClick: () => handleMenuClick('3', '/admin/management/category'),
+      onClick: () => handleMenuClick('3', '/admin/management/category', 'Manage Menu'),
       style: { backgroundColor: selectedKey === '3' ? 'rgba(255, 255, 255, 0.2)' : 'transparent' },
     },
     {
       key: '4',
       icon: <BarChartOutlined />,
       label: 'Sales Report',
-      onClick: () => handleMenuClick('4', '/admin/management/report'),
+      onClick: () => handleMenuClick('4', '/admin/management/report', 'Sales Report'),
       style: { backgroundColor: selectedKey === '4' ? 'rgba(255, 255, 255, 0.2)' : 'transparent' },
     },
   ];
@@ -102,16 +108,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   return (
     <Layout style={{ minHeight: '100vh' }}>
       <Sider collapsible style={{ backgroundColor: '#543310' }} trigger={null}>
-      <div className="logo" style={{ padding: '16px', textAlign: 'center', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <img 
-          src="/path/to/your/logo.png" // Ganti dengan path ke logo Anda
-          alt="Logo"
-          style={{ width: '50px', height: '50px', marginRight: '10px' }} // Sesuaikan ukuran di sini
-        />
-        <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#FFF7E9' }}>
-          warπ
+        <div className="logo" style={{ padding: '16px', textAlign: 'center', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <img 
+            src="/logo.svg" // Ganti dengan path ke logo Anda
+            alt="Logo"
+            style={{ width: '60px', height: '60px', marginRight: '3px' }} // Sesuaikan ukuran di sini
+          />
+          <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#FFF7E9' }}>
+            warπ
+          </div>
         </div>
-      </div>
         <Menu
           theme="dark"
           mode="inline"
@@ -134,7 +140,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center' }}>
-            <h1 style={{ color: '#FFF7E9', fontSize: '18px', margin: 0 }}>Dashboard</h1>
+            <h1 style={{ color: '#FFF7E9', fontSize: '20px', margin: 0 }}>{pageTitle}</h1> {/* Judul Halaman Dinamis */}
           </div>
 
           <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
@@ -155,7 +161,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 <UserOutlined style={{ fontSize: '18px', fontWeight: 'bold' }} />
               </Avatar>
               <div style={{ display: 'flex', flexDirection: 'column', marginLeft: '10px', lineHeight: '1.3' }}>
-                <span style={{ color: '#FFF7E9' }}>Username</span>
+                <span style={{ color: '#FFF7E9', fontWeight: 'bold' }}>Username</span>
                 <span style={{ color: '#FFF7E9' }}>Rolename</span>
               </div>
               {/* Arrow icon */}
@@ -212,9 +218,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
         <Content
           style={{
-            margin: '24px 16px',
+            margin: '0px 2px',
             padding: 24,
             minHeight: 280,
+            backgroundColor: 'white'
           }}
         >
           {children}

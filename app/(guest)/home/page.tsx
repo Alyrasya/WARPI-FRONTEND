@@ -102,8 +102,6 @@ const Home = () => {
   </div>
 </section>
 
-
-      {/* Best Coffee & Drink Section */}
       {/* Best Coffee & Drink Section */}
 <section className="py-8 sm:py-12 bg-gray-100">
   <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-4 sm:mb-6">Best Coffee & Drink</h2>
