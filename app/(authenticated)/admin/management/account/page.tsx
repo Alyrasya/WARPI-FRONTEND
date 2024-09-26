@@ -1,11 +1,12 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { Input, Button, Table, Space, notification } from 'antd';
-import { SearchOutlined, EditOutlined, EyeOutlined, PlusCircleOutlined } from '@ant-design/icons';
+import { SearchOutlined, EditOutlined, PlusCircleOutlined, LockFilled } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import CreateAccountModal from './CreateAccountModal';
 import axios from 'axios';
 import EditAccountModal from './EditAccountModal';
+import ResetPasswordModal from './ResetPasswordModal';
 
 interface DataType {
   key: string;
@@ -23,6 +24,11 @@ export default function ManageAccountContent() {
   const [dataSource, setDataSource] = useState<DataType[]>([]);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedAccount, setSelectedAccount] = useState<DataType | null>(null);
+  const [isResetModalOpen, setIsResetModalOpen] = useState(false); // State for reset password modal
+  const [accountToReset, setAccountToReset] = useState<string | null>(null); // State for the account ID to reset
+  const [isResetting, setIsResetting] = useState(false); // Loading state for resetting password
+  const [searchInput, setSearchInput] = useState(''); // State for search input
+  const [filteredDataSource, setFilteredDataSource] = useState<DataType[]>([]); // State for filtered data
 
   // Success notification
   const openSuccessNotification = (message: string) => {
@@ -77,7 +83,7 @@ export default function ManageAccountContent() {
 
   const handleEditAccount = async (id: string, status: string) => {
     try {
-      await axios.put(`http://localhost:3222/user/editStatus/${id}`, {
+      await axios.put(`http://localhost:3222/user/${id}/status`, {
         status_user: status,
       });
 
@@ -95,6 +101,28 @@ export default function ManageAccountContent() {
     }
   };
 
+  const handleOpenResetModal = (accountId: string) => {
+    setAccountToReset(accountId); // Set the account ID to reset
+    setIsResetModalOpen(true); // Open the reset password modal
+  };
+
+  const handleResetPassword = async () => {
+    if (!accountToReset) return;
+
+    setIsResetting(true); // Start loading for reset
+    try {
+      await axios.put(`http://localhost:3222/user/${accountToReset}/reset-password`); // Change to PUT request
+      setIsResetModalOpen(false);
+      openSuccessNotification('Password reset successfully!');
+      setAccountToReset(null); // Clear the account ID after reset
+    } catch (error) {
+      console.error('Error resetting password:', error);
+      openErrorNotification('Failed to reset password. Please try again.');
+    } finally {
+      setIsResetting(false); // End loading for reset
+    }
+  };
+
   // Fetch cashiers data
   useEffect(() => {
     const fetchCashiers = async () => {
@@ -102,7 +130,7 @@ export default function ManageAccountContent() {
         const response = await axios.get('http://localhost:3222/user/cashiers');
         if (response.data && Array.isArray(response.data.cashiers)) {
           const cashierData = response.data.cashiers.map((cashier: any, index: number) => ({
-            key: cashier.id, // Assuming 'id' is a unique identifier for cashiers
+            key: cashier.id,
             no: index + 1,
             username: cashier.username,
             email: cashier.email,
@@ -110,6 +138,7 @@ export default function ManageAccountContent() {
             status: cashier.status_user,
           }));
           setDataSource(cashierData);
+          setFilteredDataSource(cashierData); // Initialize filtered data
         } else {
           console.error('Response data.cashiers is not an array:', response.data.cashiers);
         }
@@ -120,6 +149,18 @@ export default function ManageAccountContent() {
 
     fetchCashiers();
   }, []);
+
+  // Update filtered data based on search input
+  useEffect(() => {
+    if (searchInput) {
+      const filteredData = dataSource.filter(account =>
+        account.email.toLowerCase().includes(searchInput.toLowerCase())
+      );
+      setFilteredDataSource(filteredData);
+    } else {
+      setFilteredDataSource(dataSource); // Show all data if search input is empty
+    }
+  }, [searchInput, dataSource]);
 
   // Define columns for the table
   const columns: ColumnsType<DataType> = [
@@ -170,7 +211,11 @@ export default function ManageAccountContent() {
             type="link" 
             onClick={() => handleEdit(record)} 
           />
-          <Button icon={<EyeOutlined />} type="link" />
+          <Button 
+            icon={<LockFilled />} 
+            type="link" 
+            onClick={() => handleOpenResetModal(record.key)} // Open reset password modal
+          />
         </Space>
       ),
     },
@@ -180,7 +225,7 @@ export default function ManageAccountContent() {
     <div style={{ padding: '24px', borderRadius: '8px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
         <Input
-          placeholder="Search category name"
+          placeholder="Search email"
           prefix={<SearchOutlined />}
           style={{
             width: '300px',
@@ -192,6 +237,8 @@ export default function ManageAccountContent() {
             outline: `1px solid rgba(0, 0, 0, 0.1)`,
             transition: 'border-color 0.3s ease, box-shadow 0.3s ease',
           }}
+          onChange={(e) => setSearchInput(e.target.value)} // Update search input
+
           onMouseEnter={() => {
             setSearchInputBorderColor('#543310');
             setSearchInputBoxShadow('0 4px 12px rgba(84, 51, 16, 0.5)');
@@ -219,7 +266,7 @@ export default function ManageAccountContent() {
       </div>
 
       <Table
-        dataSource={dataSource}
+        dataSource={filteredDataSource}
         columns={columns}
         pagination={false}
         bordered
@@ -254,6 +301,14 @@ export default function ManageAccountContent() {
         userEmail={selectedAccount?.email || ''} // Pass userEmail if needed
         initialStatusUser={selectedAccount?.status || ''} // Pass initialStatus
         accountId={selectedAccount?.key || ''} // Pass accountId
+      />
+      
+      {/* Reset Password Modal */}
+      <ResetPasswordModal
+        isOpen={isResetModalOpen}
+        accountId={accountToReset} // Pass the account ID to the modal
+        onReset={handleResetPassword} // Trigger password reset
+        onClose={() => setIsResetModalOpen(false)} 
       />
     </div>
   );

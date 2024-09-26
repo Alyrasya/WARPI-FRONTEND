@@ -8,10 +8,10 @@ const { Option } = Select;
 interface EditAccountModalProps {
   isOpen: boolean;
   onClose: () => void; // Function to close the modal
-  onSubmit: (statusUser?: string) => void; // Function to submit the updated status
+  onSubmit: (statusUser: string) => void; // Function to submit the updated status
   userEmail: string; // Display the user's email
   initialStatusUser: string; // Initial status of the user
-  accountId: string; // Add accountId here
+  accountId: string; // Account ID to pass along with the update
 }
 
 const statusOptions = [
@@ -25,25 +25,26 @@ export default function EditAccountModal({
   onSubmit,
   userEmail,
   initialStatusUser,
-  accountId, // Include accountId here
+  accountId,
 }: EditAccountModalProps) {
   const [statusUser, setStatusUser] = useState<string>(initialStatusUser);
-  const [hoveredOption, setHoveredOption] = useState<string | null>(null);
+  const [hoveredOption, setHoveredOption] = useState<string | null>(null); // For hover effect
   const modalRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
+  // Handle OK button click, which submits the selected status
   const handleOk = () => {
     if (statusUser !== initialStatusUser) {
-      onSubmit(statusUser); // This will always be a string
+      onSubmit(statusUser); // Send the selected status back to the parent component
     }
     onClose();
-    router.refresh();
+    router.refresh(); // Refresh the page (optional, if needed)
   };
 
   const handleCancel = () => {
-    setStatusUser(initialStatusUser); // Reset to initial value
+    setStatusUser(initialStatusUser); // Reset to initial value if cancelled
     onClose();
-    router.refresh();
+    router.refresh(); // Refresh the page (optional)
   };
 
   // Event handler untuk mengubah warna border saat di-hover
@@ -71,25 +72,27 @@ export default function EditAccountModal({
         >
           Cancel
         </Button>,
-        <Button key="ok" type="primary" onClick={handleOk} style={{ backgroundColor: '#543310', borderColor: '#543310' }}>
+        <Button
+          key="ok"
+          type="primary"
+          onClick={handleOk}
+          style={{ backgroundColor: '#543310', borderColor: '#543310' }}
+        >
           OK
         </Button>,
       ]}
       centered
     >
       <div ref={modalRef}>
-        <div style={{ display: 'flex', flexDirection: 'column'}}>
-          <label style={{ marginBottom: '4px' }}>email : {userEmail}</label>
-          <label>status :</label>
+        <div style={{ display: 'flex', flexDirection: 'column', marginBottom: '16px' }}>
+          <label style={{ marginBottom: '4px' }}>Email: {userEmail}</label>
+          <label style={{ marginBottom: '8px' }}>Status:</label>
         </div>
         <Select
-          value={statusUser}
-          onChange={setStatusUser}
-          onMouseEnter={() => setStatusUser(initialStatusUser)}
-          onMouseLeave={() => setStatusUser(initialStatusUser)}
+          value={statusUser} // Set the current status
+          onChange={setStatusUser} // Update the status when an option is selected
           style={{
             width: '100%',
-            marginTop: '8px',
             borderColor: '#543310',
             boxShadow: '0 0 5px rgba(84, 51, 16, 0.5)',
             transition: 'border-color 0.3s ease, box-shadow 0.3s ease',

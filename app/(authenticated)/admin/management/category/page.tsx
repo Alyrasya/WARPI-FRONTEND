@@ -21,6 +21,7 @@ export default function ManageMenuContent() {
   const [searchInputBoxShadow, setSearchInputBoxShadow] = useState('none'); 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false); 
   const [editingCategory, setEditingCategory] = useState<DataType | null>(null); 
+  const [searchInput, setSearchInput] = useState('');
 
   const openSuccessNotification = (message: string) => {
     notification.success({
@@ -89,24 +90,54 @@ export default function ManageMenuContent() {
     }
   };
 
+  const handleSearch = async (value: string) => {
+    if (value === '') {
+      // Fetch all categories if input is empty
+      fetchCategories();
+      return;
+    }
+
+    try {
+      const response = await axios.get('http://localhost:3222/category/filter/category', {
+        params: { category_name: value }
+      });
+
+      const filteredData: DataType[] = response.data.map((item: any, index: number) => ({
+        key: item.id,
+        no: index + 1,
+        category_name: item.category_name,
+        status_category: item.status_category,
+      }));
+
+      setDataSource(filteredData);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+      openErrorNotification('Failed to fetch categories. Please try again.');
+    }
+  };
+
+  // useEffect to handle real-time search and fetch all categories when input is cleared
   useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const response = await fetch('http://localhost:3222/category');
-        const data = await response.json();
+    handleSearch(searchInput);
+  }, [searchInput]);
+  const fetchCategories = async () => {
+    try {
+      const response = await axios.get('http://localhost:3222/category');
+      const formattedData: DataType[] = response.data.category.map((item: any, index: number) => ({
+        key: item.id,
+        no: index + 1,
+        category_name: item.category_name,
+        status_category: item.status_category,
+      }));
 
-        const formattedData: DataType[] = data.category.map((item: any, index: number) => ({
-          key: item.id,
-          no: index + 1,
-          category_name: item.category_name,
-          status_category: item.status_category,
-        }));
+      setDataSource(formattedData);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
 
-        setDataSource(formattedData);
-      } catch (error) {
-        console.error('Error fetching categories:', error);
-      }
-    };
+  // useEffect to fetch categories on component mount
+  useEffect(() => {
     fetchCategories();
   }, []);
 
@@ -175,6 +206,11 @@ export default function ManageMenuContent() {
             outline: `1px solid rgba(0, 0, 0, 0.1)`,
             transition: 'border-color 0.3s ease, box-shadow 0.3s ease',
           }}
+
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
+          onPressEnter={() => handleSearch(searchInput)}
+
           onMouseEnter={() => {
             setSearchInputBorderColor('#543310'); 
             setSearchInputBoxShadow('0 4px 12px rgba(84, 51, 16, 0.5)');
