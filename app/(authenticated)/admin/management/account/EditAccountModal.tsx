@@ -31,6 +31,7 @@ export default function EditAccountModal({
   const [hoveredOption, setHoveredOption] = useState<string | null>(null); // For hover effect
   const modalRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+  const [statusHover, setStatusHover] = useState<boolean>(false);
 
   // Handle OK button click, which submits the selected status
   const handleOk = () => {
@@ -91,6 +92,8 @@ export default function EditAccountModal({
         <Select
           value={statusUser} // Set the current status
           onChange={setStatusUser} // Update the status when an option is selected
+          onMouseEnter={() => setStatusHover(true)}
+          onMouseLeave={() => setStatusHover(false)}
           style={{
             width: '100%',
             borderColor: '#543310',
