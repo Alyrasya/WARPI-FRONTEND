@@ -96,7 +96,7 @@ const Register: React.FC = () => {
 
                 <Form.Item>
                   <Button
-                    type="primary"
+                    type="primary"  
                     htmlType="submit"
                     block
                     style={{ backgroundColor: "#543310", borderColor: "#543310" }}
