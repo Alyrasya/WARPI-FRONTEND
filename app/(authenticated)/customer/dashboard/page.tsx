@@ -1,32 +1,50 @@
-import { HomeOutlined, HistoryOutlined, ShoppingCartOutlined } from '@ant-design/icons';
+import Navbar from './components/Navbar';
+import Banner from './components/Banner';
+import ProductCard from './components/ProductCard';
+import Pagination from './components/Pagination';
 
-const dashboard = () =>{
-    return(
-        <nav className="bg-[#543310] p-4 flex justify-between items-center justify-center">
-      <div className="flex items-center space-x-2">
-        <img src="/logo.svg" alt="Warung Kopi" className="w-12 h-12 text-align-center justify-center" />
-        <h1 className="text-white text-[25px] text-xl font-bold text-align-center justify-center">WARπ</h1>
-      </div>
-      <div className="flex space-x-5">
-      <a href="#" className="text-white flex items-center ">
-          <button className="flex items-center bg-[#A67B5B] text-white px-4 py-2 rounded-[8px]">
-            <HomeOutlined style={{ fontSize: '16px' }} />
-            <span className="text-[12px] ml-2">Home</span>
-          </button>
-        </a>
-        <a href="#" className="text-white flex items-center ">
-          <button className="flex items-center bg-[#A67B5B] text-white px-4 py-2 rounded-[8px]">
-            <HistoryOutlined style={{ fontSize: '16px' }} />
-            <span className="text-[12px] ml-2">History</span>
-          </button>
-        </a>
-                <a href="#" className="text-white flex items-center ">
-        <div style={{ width: '25px', height: '25px' }} className="flex justify-center items-center">
-            <ShoppingCartOutlined style={{ fontSize: '30px', color: 'white' }} />
+export default function HomePage() {
+  const products = [
+    { id: 1, name: "Coffe", price: "Rp139.900", sold: "4rb+" },
+    { id: 2, name: "Coffe", price: "Rp139.900", sold: "4rb+" },
+    { id: 3, name: "Coffe", price: "Rp139.900", sold: "4rb+" },
+    // Tambahkan produk lainnya sesuai kebutuhan
+  ];
+
+  return (
+    <div>
+      <Navbar />
+      <Banner />
+      <div className="max-w-7xl mx-auto py-8 px-4">
+        <div className="flex justify-between items-center">
+          <div className="flex space-x-4">
+            <button className="px-4 py-2 bg-brown-500 text-white rounded-full">All</button>
+            <button className="px-4 py-2 bg-gray-200 text-brown-500 rounded-full">Food</button>
+            <button className="px-4 py-2 bg-gray-200 text-brown-500 rounded-full">Drinks</button>
+          </div>
+          <div>
+            <input className="border rounded-md p-2" placeholder="Search menu" />
+            <button className="ml-2 p-2 bg-brown-500 text-white rounded-md">Filter</button>
+          </div>
         </div>
-        </a>
+        <div className="grid grid-cols-4 gap-6 mt-8">
+          {products.map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
+        </div>
+        <div className="grid grid-cols-4 gap-6 mt-8">
+          {products.map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
+        </div>
+        <div className="grid grid-cols-4 gap-6 mt-8">
+          {products.map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
+        </div>
+        <Pagination />
       </div>
-    </nav>
-    )
+    </div>
+  );
 }
-export default dashboard;
+

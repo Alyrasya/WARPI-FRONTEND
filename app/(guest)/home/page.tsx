@@ -45,14 +45,14 @@ const Home = () => {
       <Image src="/roundedKopi.svg" alt="Coffee" layout="fill" objectFit="cover" className="rounded-full" />
     </div>
     <p className="mt-4 text-sm sm:text-base max-w-xs mx-auto">
-      Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text.
+      Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text.
     </p>
   </div>
 
   {/* Second Card with reversed layout */}
   <div className="w-full sm:w-1/3 group hover:scale-105 transition-transform duration-300">
     <p className="mt-4 text-sm sm:text-base max-w-xs mx-auto">
-      Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text.
+      Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text.
     </p>
     <div className="relative overflow-hidden rounded-full w-32 h-32 mx-auto mt-4">
       <Image src="/roundedKopi.svg" alt="Coffee" layout="fill" objectFit="cover" className="rounded-full" />

@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client"; // Pastikan komponen adalah Client Component
 
 import { useEffect, useState } from 'react';
@@ -120,7 +121,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           items={siderMenuItems}
         />
       </Sider>
-
       <Layout>
         <Header
           className="header"
