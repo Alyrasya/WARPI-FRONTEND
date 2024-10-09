@@ -96,8 +96,6 @@ export default function EditAccountModal({
           onMouseLeave={() => setStatusHover(false)}
           style={{
             width: '100%',
-            borderColor: '#543310',
-            boxShadow: '0 0 5px rgba(84, 51, 16, 0.5)',
             transition: 'border-color 0.3s ease, box-shadow 0.3s ease',
           }}
         >

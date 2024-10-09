@@ -8,7 +8,7 @@ const { Option } = Select;
 interface EditCategoryModalProps {
   isOpen: boolean;
   onClose: () => void; // Function to close the modal
-  onSubmit: (categoryName?: string, statusCategory?: string) => void; // Allow optional parameters
+  onSubmit: (updatedData: { category_name?: string; status_category?: string }) => void;
   initialCategoryName: string;
   initialStatusCategory: string;
 }
@@ -30,30 +30,28 @@ export default function EditCategoryModal({
   const [categoryNameHover, setCategoryNameHover] = useState<boolean>(false);
   const [statusHover, setStatusHover] = useState<boolean>(false);
   const [activeInput, setActiveInput] = useState<'categoryName' | 'status' | null>(null);
-  const [hoveredOption, setHoveredOption] = useState<string | null>(null); // Track hovered option
+  const [hoveredOption, setHoveredOption] = useState<string | null>(null);
   const modalRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
   const handleOk = () => {
-    const updatedData: { categoryName?: string; statusCategory?: string } = {};
-
-    // Check if category name is changed
+    const updatedData: { category_name?: string; status_category?: string } = {}; // Explicit typing
+    
+    // Only include fields that have been changed
     if (categoryName.trim() && categoryName !== initialCategoryName) {
-      updatedData.categoryName = categoryName;
+      updatedData.category_name = categoryName; // Correct key for category name
     }
-
-    // Check if status category is changed
+    
     if (statusCategory && statusCategory !== initialStatusCategory) {
-      updatedData.statusCategory = statusCategory;
+      updatedData.status_category = statusCategory; // Correct key for status category
     }
-
-    // Submit only if there are changes
+    
+    // Pass the updated data to the onSubmit function
     if (Object.keys(updatedData).length > 0) {
-      onSubmit(updatedData.categoryName, updatedData.statusCategory);
+      onSubmit(updatedData);
+    } else {
+      onClose(); // Close modal if no changes
     }
-
-    onClose();
-    router.refresh();
   };
 
   const handleCancel = () => {
@@ -83,6 +81,14 @@ export default function EditCategoryModal({
     e.currentTarget.style.borderColor = ''; // Menghapus perubahan border-color
     e.currentTarget.style.color = ''; // Menghapus perubahan warna teks
   };
+
+  useEffect(() => {
+    if (isOpen) {
+      setCategoryName(initialCategoryName);
+      setStatusCategory(initialStatusCategory);
+    }
+  }, [isOpen, initialCategoryName, initialStatusCategory]);
+
 
   useEffect(() => {
     if (isOpen) {
@@ -159,8 +165,6 @@ export default function EditCategoryModal({
           style={{
             width: '100%',
             marginTop: '8px',
-            borderColor: statusBorderColor,
-            boxShadow: statusBoxShadow,
             transition: 'border-color 0.3s ease, box-shadow 0.3s ease',
           }}
         >

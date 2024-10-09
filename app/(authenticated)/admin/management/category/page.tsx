@@ -1,12 +1,14 @@
 "use client";
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Input, Button, Table, Space, notification } from 'antd';
 import { SearchOutlined, EditOutlined, EyeOutlined, PlusCircleOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
+import { categoryRepository } from '#/repository/category';
 import CreateCategoryModal from './CreateCategoryModal';
-import axios from 'axios';
+import { mutate } from 'swr';
 import EditCategoryModal from './EditCategoryModal';
 
+// Existing DataType interface
 interface DataType {
   key: string;
   no: number;
@@ -15,14 +17,11 @@ interface DataType {
 }
 
 export default function ManageMenuContent() {
-  const [dataSource, setDataSource] = useState<DataType[]>([]);
-  const [isModalOpen, setIsModalOpen] = useState(false); 
   const [searchInputBorderColor, setSearchInputBorderColor] = useState('transparent'); 
   const [searchInputBoxShadow, setSearchInputBoxShadow] = useState('none'); 
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false); 
-  const [editingCategory, setEditingCategory] = useState<DataType | null>(null); 
   const [searchInput, setSearchInput] = useState('');
 
+  // Success notification
   const openSuccessNotification = (message: string) => {
     notification.success({
       message: 'Success',
@@ -32,6 +31,7 @@ export default function ManageMenuContent() {
     });
   };
 
+  // Error notification
   const openErrorNotification = (message: string) => {
     notification.error({
       message: 'Error',
@@ -41,119 +41,7 @@ export default function ManageMenuContent() {
     });
   };
 
-  const handleCreateCategory = async (category_name: string) => {
-    try {
-      const response = await axios.post('http://localhost:3222/category/createCategory', {
-        category_name
-      });
-
-      const newCategory: DataType = {
-        key: response.data.key,
-        no: dataSource.length + 1,
-        category_name,
-        status_category: 'active',
-      };
-
-      setDataSource([...dataSource, newCategory]);
-      setIsModalOpen(false); 
-      openSuccessNotification('Category created successfully!');
-    } catch (error) {
-      console.error('Error creating category:', error);
-      openErrorNotification('Failed to create category. Please try again.');
-    }
-  };
-
-  const handleEditCategory = async (category_name?: string, status_category?: string) => {
-    if (editingCategory) {
-      try {
-        const updatedData: { category_name?: string; status_category?: string } = {};
-        if (category_name) updatedData.category_name = category_name; 
-        if (status_category) updatedData.status_category = status_category; 
-
-        await axios.put(`http://localhost:3222/category/${editingCategory.key}`, updatedData);
-
-        setDataSource((prevData) =>
-          prevData.map(item =>
-            item.key === editingCategory.key
-              ? { ...item, ...(category_name && { category_name }), ...(status_category && { status_category }) }
-              : item
-          )
-        );
-
-        setIsEditModalOpen(false);
-        setEditingCategory(null); 
-        openSuccessNotification('Category updated successfully!');
-      } catch (error) {
-        console.error('Error updating category:', error);
-        openErrorNotification('Failed to update category. Please try again.');
-      }
-    }
-  };
-
-  const handleSearch = async (value: string) => {
-    if (value === '') {
-      // Fetch all categories if input is empty
-      fetchCategories();
-      return;
-    }
-
-    try {
-      const response = await axios.get('http://localhost:3222/category/filter/category', {
-        params: { category_name: value }
-      });
-
-      const filteredData: DataType[] = response.data.map((item: any, index: number) => ({
-        key: item.id,
-        no: index + 1,
-        category_name: item.category_name,
-        status_category: item.status_category,
-      }));
-
-      setDataSource(filteredData);
-    } catch (error) {
-      console.error('Error fetching categories:', error);
-      openErrorNotification('Failed to fetch categories. Please try again.');
-    }
-  };
-
-  // useEffect to handle real-time search and fetch all categories when input is cleared
-  useEffect(() => {
-    handleSearch(searchInput);
-  }, [searchInput]);
-  const fetchCategories = async () => {
-    try {
-      const response = await axios.get('http://localhost:3222/category');
-      const formattedData: DataType[] = response.data.category.map((item: any, index: number) => ({
-        key: item.id,
-        no: index + 1,
-        category_name: item.category_name,
-        status_category: item.status_category,
-      }));
-
-      setDataSource(formattedData);
-    } catch (error) {
-      console.error('Error fetching categories:', error);
-    }
-  };
-
-  // useEffect to fetch categories on component mount
-  useEffect(() => {
-    fetchCategories();
-  }, []);
-
-  const handleOpenModal = () => {
-    setIsModalOpen(true);
-  };  
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-  };
-
-  const handleOpenEditModal = (record: DataType) => {
-    setEditingCategory(record); 
-    setIsEditModalOpen(true); 
-  };
-
+  //Column Table
   const columns: ColumnsType<DataType> = [
     {
       title: <div style={{ textAlign: 'center' }}>No</div>,
@@ -183,8 +71,8 @@ export default function ManageMenuContent() {
       width: '20%',
       render: (_: unknown, record: DataType) => (
         <Space size="middle">
-          <Button icon={<EditOutlined />} type="link" onClick={() => handleOpenEditModal(record)} />
-          <Button icon={<EyeOutlined />} type="link" />
+          <Button icon={<EditOutlined />} type="link" onClick={() => {/* Handle view action */}} />
+          <Button icon={<EyeOutlined />} type="link" onClick={() => {/* Handle view action */}} />
         </Space>
       ),
     },
@@ -206,11 +94,8 @@ export default function ManageMenuContent() {
             outline: `1px solid rgba(0, 0, 0, 0.1)`,
             transition: 'border-color 0.3s ease, box-shadow 0.3s ease',
           }}
-
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
-          onPressEnter={() => handleSearch(searchInput)}
-
           onMouseEnter={() => {
             setSearchInputBorderColor('#543310'); 
             setSearchInputBoxShadow('0 4px 12px rgba(84, 51, 16, 0.5)');
@@ -223,7 +108,6 @@ export default function ManageMenuContent() {
         <Button
           type="primary"
           icon={<PlusCircleOutlined style={{ fontSize: '20px' }} />}
-          onClick={handleOpenModal}
           style={{
             backgroundColor: '#000000',
             borderRadius: '12px',
@@ -238,13 +122,15 @@ export default function ManageMenuContent() {
       </div>
 
       <Table
-        dataSource={dataSource}
         columns={columns}
-        pagination={false}
         bordered
         style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.1)', borderRadius: '8px' }}
         rowClassName={() => 'ant-table-row ant-table-row-level-0'}
         size="middle"
+        pagination={{
+          position: ['bottomCenter'],
+          pageSize: 8,
+        }}
         components={{
           header: {
             cell: (props: React.HTMLProps<HTMLTableCellElement>) => (
@@ -253,22 +139,6 @@ export default function ManageMenuContent() {
           },
         }}
       />
-
-      <CreateCategoryModal
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        onSubmit={handleCreateCategory}
-      />
-
-      {editingCategory && (
-        <EditCategoryModal
-          isOpen={isEditModalOpen}
-          onClose={() => setIsEditModalOpen(false)}
-          onSubmit={handleEditCategory}
-          initialCategoryName={editingCategory.category_name}
-          initialStatusCategory={editingCategory.status_category}
-        />
-      )}
     </div>
   );
 }

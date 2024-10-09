@@ -49,6 +49,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     setDropdownOpen((prev) => !prev);
   };
 
+  // Fungsi untuk menghandle klik di sidebar
+  const handleMenuClick = (key: string, path: string, title: string) => {
+    setSelectedKey(key); // Update selected menu item
+    setPageTitle(title); // Update page title
+    router.push(path); // Navigasi ke halaman baru
+  };
+
   // Menu dropdown untuk logout
   const menuItems: MenuProps['items'] = [
     {
@@ -65,14 +72,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       ),
     },
   ];
-
-  // Fungsi untuk menghandle klik di sidebar
-  const handleMenuClick = (key: string, path: string, title: string) => {
-    setSelectedKey(key); // Update selected menu item
-    setPageTitle(title); // Update page title
-    router.push(path); // Navigasi ke halaman baru
-  };
-
+  
   // Menu sidebar
   const siderMenuItems: MenuProps['items'] = [
     {
@@ -106,8 +106,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   ];
 
   return (
-    <Layout style={{ minHeight: '100vh' }}>
-      <Sider collapsible style={{ backgroundColor: '#543310' }} trigger={null}>
+    <Layout style={{ minHeight: '100vh',backgroundColor: 'white' }}>
+      <Sider collapsible style={{ backgroundColor: '#543310',position: 'fixed',height: '100%', left: 0 }} trigger={null}>
         <div className="logo" style={{ padding: '16px', textAlign: 'center', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <img 
             src="/logo.svg" // Ganti dengan path ke logo Anda
@@ -127,16 +127,21 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         />
       </Sider>
 
-      <Layout>
+        <Layout style={{backgroundColor: 'white'}}>
         <Header
           className="header"
           style={{
+            position: 'fixed', // Make the header fixed
+            top: 0,
+            left: 200,
+            right: 0,
             background: '#342716',
             padding: '0 16px',
             color: 'white',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
+            zIndex: 1000, // Ensure the header is above other elements
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -218,10 +223,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
         <Content
           style={{
-            margin: '0px 2px',
-            padding: 24,
-            minHeight: 280,
-            backgroundColor: 'white'
+            marginTop: '58px', // Add margin-top to push content below the header
+            marginLeft: '200px', // Adjust this value according to the sidebar width
+            padding: '24px', // Padding for the content
+            backgroundColor: 'white',
+            minHeight: 'calc(100vh - 64px)', // Adjust min-height to account for header
+            overflow: 'auto',
           }}
         >
           {children}
