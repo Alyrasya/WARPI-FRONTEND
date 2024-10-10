@@ -17,14 +17,14 @@ const MenuFilter = () => {
       price: "Rp39.900",
       sold: "40+ sold",
       image: "/fotokopi.svg",
-      category: "drinks",
+      category: "food",
     },
     {
       name: "Latte",
       price: "Rp49.900",
       sold: "30+ sold",
       image: "/fotokopi.svg",
-      category: "food",
+      category: "drink",
     },
     {
       name: "Tea",
