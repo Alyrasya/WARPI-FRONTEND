@@ -235,16 +235,28 @@
     "@jridgewell/sourcemap-codec" "1.4.14"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 "@next/env@14.2.14":
   version "14.2.14"
   resolved "https://registry.npmjs.org/@next/env/-/env-14.2.14.tgz"
   integrity sha512-/0hWQfiaD5//LvGNgc8PjvyqV50vGK0cADYzaoOOGN8fxzBn3iAiaq3S0tCRnFBldq0LVveLcxCTi41ZoYgAgg==
 =======
+=======
+>>>>>>> ababf9c486046c88fc5714a0e370bf863873337c
 "@next/env@14.2.15":
   version "14.2.15"
   resolved "https://registry.npmjs.org/@next/env/-/env-14.2.15.tgz"
   integrity sha512-S1qaj25Wru2dUpcIZMjxeMVSwkt8BK4dmWHHiBuRstcIyOsMapqT4A4jSB6onvqeygkSSmOkyny9VVx8JIGamQ==
+<<<<<<< HEAD
 >>>>>>> 73abc52cfa1813ee89ba0b5f599dd8e114b05e94
+=======
+=======
+"@next/env@14.2.13":
+  version "14.2.13"
+  resolved "https://registry.npmjs.org/@next/env/-/env-14.2.13.tgz"
+  integrity sha512-s3lh6K8cbW1h5Nga7NNeXrbe0+2jIIYK9YaA9T7IufDWnZpozdFUp6Hf0d5rNWUKu4fEuSX2rCKlGjCrtylfDw==
+>>>>>>> 4388cc56a431649e0b8b232387ceb2ef46de2907
+>>>>>>> ababf9c486046c88fc5714a0e370bf863873337c
 
 "@next/eslint-plugin-next@13.4.9":
   version "13.4.9"
@@ -254,16 +266,28 @@
     glob "7.1.7"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 "@next/swc-win32-x64-msvc@14.2.14":
   version "14.2.14"
   resolved "https://registry.npmjs.org/@next/swc-win32-x64-msvc/-/swc-win32-x64-msvc-14.2.14.tgz"
   integrity sha512-MZom+OvZ1NZxuRovKt1ApevjiUJTcU2PmdJKL66xUPaJeRywnbGGRWUlaAOwunD6dX+pm83vj979NTC8QXjGWg==
 =======
+=======
+>>>>>>> ababf9c486046c88fc5714a0e370bf863873337c
 "@next/swc-win32-x64-msvc@14.2.15":
   version "14.2.15"
   resolved "https://registry.npmjs.org/@next/swc-win32-x64-msvc/-/swc-win32-x64-msvc-14.2.15.tgz"
   integrity sha512-SzqGbsLsP9OwKNUG9nekShTwhj6JSB9ZLMWQ8g1gG6hdE5gQLncbnbymrwy2yVmH9nikSLYRYxYMFu78Ggp7/g==
+<<<<<<< HEAD
 >>>>>>> 73abc52cfa1813ee89ba0b5f599dd8e114b05e94
+=======
+=======
+"@next/swc-win32-x64-msvc@14.2.13":
+  version "14.2.13"
+  resolved "https://registry.npmjs.org/@next/swc-win32-x64-msvc/-/swc-win32-x64-msvc-14.2.13.tgz"
+  integrity sha512-WwzOEAFBGhlDHE5Z73mNU8CO8mqMNLqaG+AO9ETmzdCQlJhVtWZnOl2+rqgVQS+YHunjOWptdFmNfbpwcUuEsw==
+>>>>>>> 4388cc56a431649e0b8b232387ceb2ef46de2907
+>>>>>>> ababf9c486046c88fc5714a0e370bf863873337c
 
 "@nodelib/fs.scandir@2.1.5":
   version "2.1.5"
@@ -1922,6 +1946,7 @@ natural-compare@^1.4.0:
   integrity sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw==
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 next@^14.2.12:
   version "14.2.14"
   resolved "https://registry.npmjs.org/next/-/next-14.2.14.tgz"
@@ -1929,13 +1954,26 @@ next@^14.2.12:
   dependencies:
     "@next/env" "14.2.14"
 =======
+=======
+>>>>>>> ababf9c486046c88fc5714a0e370bf863873337c
 next@^14.2.15:
   version "14.2.15"
   resolved "https://registry.npmjs.org/next/-/next-14.2.15.tgz"
   integrity sha512-h9ctmOokpoDphRvMGnwOJAedT6zKhwqyZML9mDtspgf4Rh3Pn7UTYKqePNoDvhsWBAO5GoPNYshnAUGIazVGmw==
   dependencies:
     "@next/env" "14.2.15"
+<<<<<<< HEAD
 >>>>>>> 73abc52cfa1813ee89ba0b5f599dd8e114b05e94
+=======
+=======
+next@^14.2.13:
+  version "14.2.13"
+  resolved "https://registry.npmjs.org/next/-/next-14.2.13.tgz"
+  integrity sha512-BseY9YNw8QJSwLYD7hlZzl6QVDoSFHL/URN5K64kVEVpCsSOWeyjbIGK+dZUaRViHTaMQX8aqmnn0PHBbGZezg==
+  dependencies:
+    "@next/env" "14.2.13"
+>>>>>>> 4388cc56a431649e0b8b232387ceb2ef46de2907
+>>>>>>> ababf9c486046c88fc5714a0e370bf863873337c
     "@swc/helpers" "0.5.5"
     busboy "1.6.0"
     caniuse-lite "^1.0.30001579"
@@ -1943,6 +1981,7 @@ next@^14.2.15:
     postcss "8.4.31"
     styled-jsx "5.1.1"
   optionalDependencies:
+<<<<<<< HEAD
 <<<<<<< HEAD
     "@next/swc-darwin-arm64" "14.2.14"
     "@next/swc-darwin-x64" "14.2.14"
@@ -1954,6 +1993,8 @@ next@^14.2.15:
     "@next/swc-win32-ia32-msvc" "14.2.14"
     "@next/swc-win32-x64-msvc" "14.2.14"
 =======
+=======
+>>>>>>> ababf9c486046c88fc5714a0e370bf863873337c
     "@next/swc-darwin-arm64" "14.2.15"
     "@next/swc-darwin-x64" "14.2.15"
     "@next/swc-linux-arm64-gnu" "14.2.15"
@@ -1963,7 +2004,21 @@ next@^14.2.15:
     "@next/swc-win32-arm64-msvc" "14.2.15"
     "@next/swc-win32-ia32-msvc" "14.2.15"
     "@next/swc-win32-x64-msvc" "14.2.15"
+<<<<<<< HEAD
 >>>>>>> 73abc52cfa1813ee89ba0b5f599dd8e114b05e94
+=======
+=======
+    "@next/swc-darwin-arm64" "14.2.13"
+    "@next/swc-darwin-x64" "14.2.13"
+    "@next/swc-linux-arm64-gnu" "14.2.13"
+    "@next/swc-linux-arm64-musl" "14.2.13"
+    "@next/swc-linux-x64-gnu" "14.2.13"
+    "@next/swc-linux-x64-musl" "14.2.13"
+    "@next/swc-win32-arm64-msvc" "14.2.13"
+    "@next/swc-win32-ia32-msvc" "14.2.13"
+    "@next/swc-win32-x64-msvc" "14.2.13"
+>>>>>>> 4388cc56a431649e0b8b232387ceb2ef46de2907
+>>>>>>> ababf9c486046c88fc5714a0e370bf863873337c
 
 node-releases@^2.0.8:
   version "2.0.10"
@@ -2688,6 +2743,11 @@ react-dom@*, react-dom@^18.2.0, react-dom@^18.3.1, react-dom@>=16.0.0, react-dom
   dependencies:
     loose-envify "^1.1.0"
     scheduler "^0.23.2"
+
+react-icons@^5.3.0:
+  version "5.3.0"
+  resolved "https://registry.npmjs.org/react-icons/-/react-icons-5.3.0.tgz"
+  integrity sha512-DnUk8aFbTyQPSkCfF8dbX6kQjXA9DktMeJqfjrg6cK9vwQVMxmcA3BfP4QoiztVmEHtwlTgLFsPuH2NskKT6eg==
 
 react-is@^16.13.1:
   version "16.13.1"

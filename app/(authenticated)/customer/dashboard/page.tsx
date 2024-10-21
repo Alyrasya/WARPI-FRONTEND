@@ -8,7 +8,7 @@ export default function HomePage() {
     <>
       <Navbar />
       <Banner />
-      <MenuFilter/>
+      <MenuFilter/> 
    </>
       
   );
