@@ -1,7 +1,7 @@
 // pages/index.tsx
 
 import React from "react";
-import Dashboard from "#/app/components/dashboardCard";
+import Dashboard from "#/app/(authenticated)/cashier/components/dashboardCard";
 
 const Home: React.FC = () => {
   return (

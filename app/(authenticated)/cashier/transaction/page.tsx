@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import { Button, Modal, Input, Tabs } from "antd";
 import { FaClock, FaCheckCircle } from "react-icons/fa";
-import { FaSearch } from "react-icons/fa";
 import { CiSearch } from "react-icons/ci";
 import { IoMdCloseCircle } from "react-icons/io";
 

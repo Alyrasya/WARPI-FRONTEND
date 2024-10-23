@@ -11,7 +11,6 @@ export const Provider = ({ children }: any) => {
   //   document.documentElement.style.opacity = 1
   // }, []);
 
-<<<<<<< HEAD
   return <ConfigProvider
     theme={{
       token: {
@@ -22,17 +21,3 @@ export const Provider = ({ children }: any) => {
     {children}
   </ConfigProvider>
 }
-=======
-  return (
-    <ConfigProvider
-      theme={{
-        token: {
-          colorPrimary: "#543310",
-        },
-      }}
-    >
-      {children}
-    </ConfigProvider>
-  );
-};
->>>>>>> 4388cc56a431649e0b8b232387ceb2ef46de2907
