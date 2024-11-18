@@ -4,7 +4,6 @@ import { Input, Button, Table, Space, notification, Pagination } from 'antd';
 import { SearchOutlined, EditOutlined, PlusCircleOutlined, LockFilled } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { userRepository } from '#/repository/user';
-import { mutate } from 'swr';
 
 interface DataType {
   key: string;
