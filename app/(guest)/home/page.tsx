@@ -68,6 +68,7 @@ const Home = () => {
           <div className="w-full sm:w-1/3 group hover:scale-105 transition-transform duration-300">
             <div className="relative overflow-hidden rounded-full w-32 h-32 mx-auto">
               <Image
+                src="/img/roundedKopi.png"
                 src="/img/kopi_susu.png"
                 alt="Coffee"
                 layout="fill"
