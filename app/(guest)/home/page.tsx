@@ -68,7 +68,7 @@ const Home = () => {
           <div className="w-full sm:w-1/3 group hover:scale-105 transition-transform duration-300">
             <div className="relative overflow-hidden rounded-full w-32 h-32 mx-auto">
               <Image
-                src="/img/roundedKopi.png"
+                src="/img/coffee_latte.jpg"
                 alt="Coffee"
                 layout="fill"
                 objectFit="cover"
@@ -85,7 +85,7 @@ const Home = () => {
           <div className="w-full sm:w-1/3 group hover:scale-105 transition-transform duration-300">
             <div className="relative overflow-hidden rounded-full w-32 h-32 mx-auto">
               <Image
-                src="/img/roundedKopi.png"
+                src="/img/black_coffee.jpeg"
                 alt="Coffee"
                 layout="fill"
                 objectFit="cover"
@@ -106,7 +106,7 @@ const Home = () => {
           Fun Fact
         </h2>
         <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
-          <Image src="/img/kopi.png" alt="Fun Fact" width={100} height={100} />
+          <Image src="/img/es_teh.png" alt="Fun Fact" width={100} height={100} />
           <p className="max-w-md text-sm sm:text-base">
             Lorem Ipsum is simply dummy text of the printing and typesetting
             industry.
@@ -122,38 +122,38 @@ const Home = () => {
         <div className="flex flex-col sm:flex-row justify-center gap-6">
           <div className="bg-white shadow-lg rounded-lg p-4 max-w-xs">
             <Image
-              src="/img/makanan.png"
-              alt="Coffee"
+              src="/img/sate.png"
+              alt="Food"
               width={250}
               height={200}
               className="rounded-md"
             />
-            <h3 className="mt-4 text-lg font-bold">satay</h3>
+            <h3 className="mt-4 text-lg font-bold">Sate</h3>
             <p className="text-sm">Rp139.900</p>
             <p className="text-sm text-gray-500">4rb+ sold</p>
           </div>
           <div className="bg-white shadow-lg rounded-lg p-4 max-w-xs">
             <Image
-              src="/img/makanan.png"
-              alt="Satay"
+              src="/img/kentang_goreng.png"
+              alt="Food"
               width={250}
               height={200}
               className="rounded-md"
             />
-            <h3 className="mt-4 text-lg font-bold">Satay</h3>
+            <h3 className="mt-4 text-lg font-bold">Kentang</h3>
             <p className="text-sm">Rp139.900</p>
             <p className="text-sm text-gray-500">4rb+ sold</p>
           </div>
           {/* Card Baru */}
           <div className="bg-white shadow-lg rounded-lg p-4 max-w-xs">
             <Image
-              src="/img/makanan.png"
-              alt="Noodles"
+              src="/img/sate.png"
+              alt="Food"
               width={250}
               height={200}
               className="rounded-md"
             />
-            <h3 className="mt-4 text-lg font-bold">satay</h3>
+            <h3 className="mt-4 text-lg font-bold">Sate</h3>
             <p className="text-sm">Rp129.900</p>
             <p className="text-sm text-gray-500">3rb+ sold</p>
           </div>
@@ -168,38 +168,38 @@ const Home = () => {
         <div className="flex flex-col sm:flex-row justify-center gap-6">
           <div className="bg-white shadow-lg rounded-lg p-4 max-w-xs">
             <Image
-              src="/img/templateKopi.png"
-              alt="Coffee Latte"
+              src="/img/black_coffee.jpeg"
+              alt="Coffee"
               width={250}
               height={200}
               className="rounded-md"
             />
-            <h3 className="mt-4 text-lg font-bold">coffe</h3>
+            <h3 className="mt-4 text-lg font-bold">Coffee</h3>
             <p className="text-sm">Rp139.900</p>
             <p className="text-sm text-gray-500">4rb+ sold</p>
           </div>
           <div className="bg-white shadow-lg rounded-lg p-4 max-w-xs">
             <Image
-              src="/img/templateKopi.png"
-              alt="Satay"
+              src="/img/black_coffee.jpeg"
+              alt="Coffee"
               width={250}
               height={200}
               className="rounded-md"
             />
-            <h3 className="mt-4 text-lg font-bold">Coffe</h3>
+            <h3 className="mt-4 text-lg font-bold">Coffee</h3>
             <p className="text-sm">Rp139.900</p>
             <p className="text-sm text-gray-500">4rb+ sold</p>
           </div>
           {/* Card Baru */}
           <div className="bg-white shadow-lg rounded-lg p-4 max-w-xs">
             <Image
-              src="/img/templateKopi.png"
-              alt="Iced Americano"
+              src="/img/black_coffee.jpeg"
+              alt="Coffee"
               width={250}
               height={200}
               className="rounded-md"
             />
-            <h3 className="mt-4 text-lg font-bold">Coffe</h3>
+            <h3 className="mt-4 text-lg font-bold">Coffee</h3>
             <p className="text-sm">Rp119.900</p>
             <p className="text-sm text-gray-500">2rb+ sold</p>
           </div>

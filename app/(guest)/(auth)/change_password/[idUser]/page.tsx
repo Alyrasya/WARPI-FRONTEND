@@ -73,7 +73,7 @@ const ChangePassword = () => {
         openSuccessNotification("Mengubah password berhasil!, silahkan login ulang");
         setTimeout(() => {
           router.push(`/home`);
-        }, 2000);
+        }, 2500);
       } else {
         openErrorNotification("Mengubah password gagal");
       }

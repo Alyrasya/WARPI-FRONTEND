@@ -1,0 +1,259 @@
+"use client";
+import React, { useEffect, useState } from "react";
+import { Input, Button, Table, Space, notification, Pagination } from "antd";
+import { SearchOutlined, EditOutlined, EyeOutlined, PlusCircleOutlined, ArrowLeftOutlined } from "@ant-design/icons";
+import type { ColumnsType } from "antd/es/table";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { categoryRepository } from "#/repository/category";
+import { parseJwt } from "#/utils/convert";
+
+// Existing DataType interface for products
+interface DataType {
+  key: string;
+  no: number;
+  product_photo: string;
+  product_name: string;
+  category_name: string;
+  price: number;
+  stock: number;
+  description: string;
+  status_product: string;
+}
+
+const ManageMenuProduct = () => {
+  const router = useRouter();
+  const pathname = usePathname();
+  const id = pathname?.split("/")[5];
+
+  const imgProduct = (image: string) =>
+    `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3222'}/category/upload/${image}`;    
+
+  const [searchInputBorderColor, setSearchInputBorderColor] = useState('transparent');
+  const [searchInputBoxShadow, setSearchInputBoxShadow] = useState('none');
+  const [searchInput, setSearchInput] = useState("");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(5);
+  const [idUser, setIdUser] = useState<string>("");
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      const payload = parseJwt(token);
+      if (payload?.id) {
+        setIdUser(payload.id);
+      } 
+    } 
+  }, []);
+
+  const { data: listProduct } =
+    categoryRepository.hooks.useGetProductsByCategory(id || "", {
+      page,
+      page_size: pageSize,
+      product_name: searchInput,
+  });
+
+  const productData : DataType[] =
+    listProduct?.data?.map((product: any, index: number) => ({
+      key: product.id,
+      no: (page - 1) * pageSize + index + 1,
+      product_photo: product.product_photo,
+      product_name: product.product_name,
+      category_name: product.category.category_name,
+      price: product.price,
+      stock: product.stock,
+      status_product: product.status_product,
+      description: product.description
+    })) || [];
+
+  const handleBack = () => {
+    router.push(`/admin/${idUser}/management/category`);
+  };
+
+  const openSuccessNotification = (message: string) => {
+    notification.success({
+      message: "Success",
+      description: message,
+      placement: "top",
+      duration: 1.3,
+    });
+  };
+
+  const openErrorNotification = (message: string) => {
+    notification.error({
+      message: "Error",
+      description: message,
+      placement: "top",
+      duration: 1.3,
+    });
+  };
+
+  const columns: ColumnsType<DataType> = [
+    {
+      title: <div style={{ textAlign: "center" }}>No</div>,
+      dataIndex: "no",
+      key: "no",
+      align: "center",
+      width: "6%",
+    },
+    {
+      title: <div style={{ textAlign: "center" }}>Photo</div>,
+      dataIndex: "product_photo",
+      key: "product_photo",
+      align: "center",
+      width: "20%",
+      render: (text, record) => (
+        <img
+          src={imgProduct(record.product_photo)}
+          alt="Product"
+          style={{ width: "100px", height: "60px" }}
+        />
+      ),
+    },
+    {
+      title: <div style={{ textAlign: "center" }}>Product Name</div>,
+      dataIndex: "product_name",
+      key: "product_name",
+      align: "center",
+      width: "15%",
+    },
+    {
+      title: <div style={{ textAlign: "center" }}>Category</div>,
+      dataIndex: "category_name",
+      key: "category_name",
+      align: "center",
+      width: "12%",
+    },
+    {
+      title: <div style={{ textAlign: "center" }}>Stock</div>,
+      dataIndex: "stock",
+      key: "stock",
+      align: "center",
+      width: "11%",
+    },
+    {
+      title: <div style={{ textAlign: "center" }}>Price</div>,
+      dataIndex: "price",
+      key: "price",
+      align: "center",
+      width: "14%",
+      render: (text) => {
+        const formattedPrice = new Intl.NumberFormat("id-ID", {
+          style: "currency",
+          currency: "IDR",
+        }).format(text);
+
+        return <span>{formattedPrice}</span>;
+      },
+    },
+    {
+      title: <div style={{ textAlign: "center" }}>Status</div>,
+      dataIndex: "status_product",
+      key: "status_product",
+      align: "center",
+      width: "11%",
+    },
+    {
+      title: <div style={{ textAlign: "center" }}>Action</div>,
+      key: "action",
+      align: "center",
+      width: "11%",
+      render: (_: unknown, record: DataType) => (
+        <Space size="middle">
+          <Button
+            icon={<EditOutlined />}
+            type="link"
+          />
+          <Button
+            icon={<EyeOutlined />}
+            type="link"
+          />
+        </Space>
+      ),
+    },
+  ];
+
+  return (
+    <div style={{ padding: "15px", borderRadius: "8px" }}>
+      <Button
+        type="link"
+        icon={<ArrowLeftOutlined style={{ fontSize: "18px", fontWeight: "bold" }} />}
+        style={{ marginBottom: "16px", fontWeight: "bold" }}
+        onClick={handleBack}
+      >
+        Back
+      </Button>
+      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "16px" }}>
+        <Input
+          placeholder="Search product name"
+          prefix={<SearchOutlined />}
+          style={{
+            width: '300px',
+            borderRadius: '8px',
+            padding: '0px 16px',
+            height: '40px',
+            borderColor: searchInputBorderColor,
+            boxShadow: searchInputBoxShadow,
+            outline: `1px solid rgba(0, 0, 0, 0.1)`,
+            transition: 'border-color 0.3s ease, box-shadow 0.3s ease',
+          }}
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
+          onMouseEnter={() => {
+            setSearchInputBorderColor('#543310');
+            setSearchInputBoxShadow('0 4px 12px rgba(84, 51, 16, 0.5)');
+          }}
+          onMouseLeave={() => {
+            setSearchInputBorderColor('transparent');
+            setSearchInputBoxShadow('none');
+          }}
+        />
+        <Button
+          type="primary"
+          icon={<PlusCircleOutlined style={{ fontSize: "20px" }} />}
+          style={{
+            backgroundColor: "#000000",
+            borderRadius: "10px",
+            padding: "0 16px",
+            height: "40px",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+            width: "130px",
+          }}
+        >
+          <span style={{ fontWeight: "bold", color: "#FFFFFF", fontSize: "16px" }}>
+            Product
+          </span>
+        </Button>
+      </div>
+
+      <Table
+        columns={columns}
+        bordered
+        dataSource={productData}
+        style={{ borderRadius: "8px" }}
+        rowClassName={() => "ant-table-row ant-table-row-level-0"}
+        size="middle"
+        pagination={false}
+        components={{
+          header: {
+            cell: (props: React.HTMLProps<HTMLTableCellElement>) => (
+              <th {...props} style={{ backgroundColor: "#543310", color: "white" }} />
+            ),
+          },
+        }}
+        footer={() => (
+          <div style={{ textAlign: "center" }}>
+            <Pagination
+              pageSize={pageSize}
+              current={page}
+              total={listProduct?.totalCount || 0}
+              onChange={(newPage) => setPage(newPage)}
+              showSizeChanger={false}
+            />
+          </div>
+        )}
+      />
+    </div>
+  );
+};
+
+export default ManageMenuProduct;
