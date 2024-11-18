@@ -1,10 +1,21 @@
 "use client";
 import { Row, Col, Card, Statistic } from 'antd';
 import { DollarOutlined, ShoppingCartOutlined, UserOutlined, FileTextOutlined, BarChartOutlined } from '@ant-design/icons';
+import { dashboardRepository } from '#/repository/dashboard';
 
 export default function DashboardPage() {
-  return (
 
+  const { data } = dashboardRepository.hooks.useGetAdminSummary();
+  const {
+    totalCategory = 0,
+    totalProduct = 0,
+    totalCashier = 0,
+    totalTransaction = 0,
+    totalMonthlyIncome = 0,
+    totalAllIncome = 0,
+  } = data || {};
+
+  return (
     <div style={{ padding: '16px' }}>
       {/* Bagian atas: 3 kotak */}
       <Row gutter={[16, 16]}>
@@ -24,7 +35,7 @@ export default function DashboardPage() {
               </div>
               <Statistic
                 title={<h4 style={{ fontSize: '16px', color: '#543310' }}>Total Category</h4>}
-                value={10} // Mengisi nilai dari data API
+                value={totalCategory} // Mengisi nilai dari data API
                 valueStyle={{ color: '#64748B', fontSize: '18px', fontWeight: 'bold' }}
               />
             </div>
@@ -46,7 +57,7 @@ export default function DashboardPage() {
               </div>
               <Statistic
                 title={<h4 style={{ fontSize: '16px', color: '#543310' }}>Total Product</h4>}
-                value={10} // Mengisi nilai dari data API
+                value={totalProduct}
                 valueStyle={{ color: '#64748B', fontSize: '18px', fontWeight: 'bold' }}
               />
             </div>
@@ -68,7 +79,7 @@ export default function DashboardPage() {
               </div>
               <Statistic
                 title={<h4 style={{ fontSize: '16px', color: '#543310' }}>Total Cashier</h4>}
-                value={10} // Mengisi nilai dari data API
+                value={totalCashier}
                 valueStyle={{ color: '#64748B', fontSize: '18px', fontWeight: 'bold' }}
               />
             </div>
@@ -94,7 +105,7 @@ export default function DashboardPage() {
               </div>
               <Statistic
                 title={<h4 style={{ fontSize: '16px', color: '#543310' }}>Total Transaction</h4>}
-                value={10} // Mengisi nilai dari data API
+                value={totalTransaction}
                 valueStyle={{ color: '#64748B', fontSize: '18px', fontWeight: 'bold' }}
               />
             </div>
@@ -116,7 +127,7 @@ export default function DashboardPage() {
               </div>
               <Statistic
                 title={<h4 style={{ fontSize: '16px', color: '#543310' }}>Total Monthly Income</h4>}
-                value={10} // Mengisi nilai dari data API
+                value={totalMonthlyIncome}
                 valueStyle={{ color: '#64748B', fontSize: '18px', fontWeight: 'bold' }}
                 formatter={value => `Rp. ${value.toLocaleString('id-ID')},00`}
               />
@@ -142,7 +153,7 @@ export default function DashboardPage() {
               </div>
               <Statistic
                 title={<h4 style={{ fontSize: '16px', color: '#543310' }}>All Total Income</h4>}
-                value={10} // Mengisi nilai dari data API
+                value={totalAllIncome}
                 valueStyle={{ color: '#64748B', fontSize: '18px', fontWeight: 'bold' }}
                 formatter={value => `Rp. ${value.toLocaleString('id-ID')},00`}
               />

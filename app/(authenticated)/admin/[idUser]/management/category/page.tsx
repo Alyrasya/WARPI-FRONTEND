@@ -1,156 +1,196 @@
 "use client";
-import { Row, Col, Card, Statistic } from 'antd';
-import { DollarOutlined, ShoppingCartOutlined, UserOutlined, FileTextOutlined, BarChartOutlined } from '@ant-design/icons';
+import React, { useEffect, useState } from 'react';
+import { Input, Button, Table, Space, notification, Pagination } from 'antd';
+import { SearchOutlined, EditOutlined, EyeOutlined, PlusCircleOutlined } from '@ant-design/icons';
+import type { ColumnsType } from 'antd/es/table';
+import { categoryRepository } from '#/repository/category';
+import { useRouter } from 'next/navigation';
+import { parseJwt } from '#/utils/convert';
 
-export default function DashboardPage() {
+// Existing DataType interface
+interface DataType {
+  key: string;
+  no: number;
+  category_name: string;
+  status_category: string;
+}
+
+const ManageMenuCategory = () => {
+  const [searchInputBorderColor, setSearchInputBorderColor] = useState('transparent');
+  const [searchInputBoxShadow, setSearchInputBoxShadow] = useState('none');
+  const [searchInput, setSearchInput] = useState('');
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(8);
+  const [idUser, setIdUser] = useState<string>("");
+  const router = useRouter();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      const payload = parseJwt(token);
+      if (payload?.id) {
+        setIdUser(payload.id);
+      }
+    }
+  }, []);
+
+  const { data: listCategory } = 
+    categoryRepository.hooks.useGetAllCategory({
+      page: page,
+      page_size: pageSize,
+      category_name: searchInput,
+  });
+
+  const categoryData: DataType[] = 
+    listCategory?.data?.map((category: any, index: number) => ({
+      key: category.id,
+      no: (page - 1) * pageSize + index + 1,
+      category_name: category.category_name,
+      status_category: category.status_category,
+  })) || [];   
+  
+  const handleViewProduct = (id: string) => {
+    router.push(`/admin/${idUser}/management/product/${id}`);
+  };
+  
+  // Success notification
+  const openSuccessNotification = (message: string) => {
+    notification.success({
+      message: 'Success',
+      description: message,
+      placement: 'top',
+      duration: 1.3,
+    });
+  };
+
+  // Error notification
+  const openErrorNotification = (message: string) => {
+    notification.error({
+      message: 'Error',
+      description: message,
+      placement: 'top',
+      duration: 1.3,
+    });
+  };
+
+  // Column Table
+  const columns: ColumnsType<DataType> = [
+    {
+      title: <div style={{ textAlign: 'center' }}>No</div>,
+      dataIndex: 'no',
+      key: 'no',
+      align: 'center',
+      width: '10%',
+    },
+    {
+      title: <div style={{ textAlign: 'center' }}>Category Name</div>,
+      dataIndex: 'category_name',
+      key: 'category_name',
+      align: 'center',
+      width: '50%',
+    },
+    {
+      title: <div style={{ textAlign: 'center' }}>Status</div>,
+      dataIndex: 'status_category',
+      key: 'status_category',
+      align: 'center',
+      width: '20%',
+    },
+    {
+      title: <div style={{ textAlign: 'center' }}>Action</div>,
+      key: 'action',
+      align: 'center',
+      width: '20%',
+      render: (_: unknown, record: DataType) => (
+        <Space size="middle">
+          <Button 
+            icon={<EditOutlined />} 
+            type="link" 
+          />
+          <Button 
+            icon={<EyeOutlined />} 
+            type="link"
+            onClick={() => handleViewProduct(record.key)}
+          />
+        </Space>
+      ),
+    },
+  ];
+
   return (
+    <div style={{ padding: '15px', borderRadius: '8px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
+        <Input
+          placeholder="Search category name"
+          prefix={<SearchOutlined />}
+          style={{
+            width: '300px',
+            borderRadius: '8px',
+            padding: '0px 16px',
+            height: '40px',
+            borderColor: searchInputBorderColor,
+            boxShadow: searchInputBoxShadow,
+            outline: `1px solid rgba(0, 0, 0, 0.1)`,
+            transition: 'border-color 0.3s ease, box-shadow 0.3s ease',
+          }}
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
+          onMouseEnter={() => {
+            setSearchInputBorderColor('#543310');
+            setSearchInputBoxShadow('0 4px 12px rgba(84, 51, 16, 0.5)');
+          }}
+          onMouseLeave={() => {
+            setSearchInputBorderColor('transparent');
+            setSearchInputBoxShadow('none');
+          }}
+        />
+        <Button
+          type="primary"
+          icon={<PlusCircleOutlined style={{ fontSize: '20px' }} />}
+          style={{
+            backgroundColor: '#000000',
+            borderRadius: '10px',
+            padding: '0 16px',
+            height: '40px',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+            width: '130px',
+          }}
+        >
+          <span style={{ fontWeight: 'bold', color: '#FFFFFF', fontSize: '16px' }}>Category</span>
+        </Button>
+      </div>
 
-    <div style={{ padding: '16px' }}>
-      {/* Bagian atas: 3 kotak */}
-      <Row gutter={[16, 16]}>
-        <Col span={8}>
-          <Card
-            style={{ 
-              backgroundColor: '#FFFFFF', 
-              borderRadius: '8px', 
-              padding: '8px',
-              border: '3px solid #E2E8F0',
-              minHeight: '130px'
-            }}
-          >
-            <div style={{ textAlign: 'left' }}>
-              <div style={{ backgroundColor: '#543310', borderRadius: '8px', padding: '8px', marginBottom: '8px', display: 'inline-block' }}>
-                <ShoppingCartOutlined style={{ color: '#FFFFFF', fontSize: '38px' }} />
-              </div>
-              <Statistic
-                title={<h4 style={{ fontSize: '16px', color: '#543310' }}>Total Category</h4>}
-                value={100000} // Mengisi nilai dari data API
-                valueStyle={{ color: '#64748B', fontSize: '18px', fontWeight: 'bold' }}
-              />
-            </div>
-          </Card>
-        </Col>
-        <Col span={8}>
-          <Card
-            style={{ 
-              backgroundColor: '#FFFFFF', 
-              borderRadius: '8px', 
-              padding: '8px',
-              border: '3px solid #E2E8F0',
-              minHeight: '130px'
-            }}
-          >
-            <div style={{ textAlign: 'left' }}>
-              <div style={{ backgroundColor: '#543310', borderRadius: '8px', padding: '8px', marginBottom: '8px', display: 'inline-block' }}>
-                <ShoppingCartOutlined style={{ color: '#FFFFFF', fontSize: '38px' }} />
-              </div>
-              <Statistic
-                title={<h4 style={{ fontSize: '16px', color: '#543310' }}>Total Product</h4>}
-                value={10000} // Mengisi nilai dari data API
-                valueStyle={{ color: '#64748B', fontSize: '18px', fontWeight: 'bold' }}
-              />
-            </div>
-          </Card>
-        </Col>
-        <Col span={8}>
-          <Card
-            style={{ 
-              backgroundColor: '#FFFFFF', 
-              borderRadius: '8px', 
-              padding: '8px',
-              border: '3px solid #E2E8F0',
-              minHeight: '130px'
-            }}
-          >
-            <div style={{ textAlign: 'left' }}>
-              <div style={{ backgroundColor: '#543310', borderRadius: '8px', padding: '8px', marginBottom: '8px', display: 'inline-block' }}>
-                <UserOutlined style={{ color: '#FFFFFF', fontSize: '38px' }} />
-              </div>
-              <Statistic
-                title={<h4 style={{ fontSize: '16px', color: '#543310' }}>Total Cashier</h4>}
-                value={10} // Mengisi nilai dari data API
-                valueStyle={{ color: '#64748B', fontSize: '18px', fontWeight: 'bold' }}
-              />
-            </div>
-          </Card>
-        </Col>
-      </Row>
-
-      {/* Bagian tengah: 2 kotak */}
-      <Row gutter={[16, 16]} style={{ marginTop: '16px' }}>
-        <Col span={8}>
-          <Card
-            style={{ 
-              backgroundColor: '#FFFFFF', 
-              borderRadius: '8px', 
-              padding: '8px', 
-              minHeight: '130px',
-              border: '3px solid #E2E8F0'
-            }}
-          >
-            <div style={{ textAlign: 'left' }}>
-              <div style={{ backgroundColor: '#543310', borderRadius: '8px', padding: '8px', marginBottom: '8px', display: 'inline-block' }}>
-                <FileTextOutlined style={{ color: '#FFFFFF', fontSize: '38px' }} />
-              </div>
-              <Statistic
-                title={<h4 style={{ fontSize: '16px', color: '#543310' }}>Total Transaction</h4>}
-                value={10} // Mengisi nilai dari data API
-                valueStyle={{ color: '#64748B', fontSize: '18px', fontWeight: 'bold' }}
-              />
-            </div>
-          </Card>
-        </Col>
-        <Col span={16}>
-          <Card
-            style={{ 
-              backgroundColor: '#FFFFFF', 
-              borderRadius: '8px', 
-              padding: '8px', 
-              minHeight: '130px',
-              border: '3px solid #E2E8F0'
-            }}
-          >
-            <div style={{ textAlign: 'left' }}>
-              <div style={{ backgroundColor: '#543310', borderRadius: '8px', padding: '8px', marginBottom: '8px', display: 'inline-block' }}>
-                <BarChartOutlined style={{ color: '#FFFFFF', fontSize: '38px' }} />
-              </div>
-              <Statistic
-                title={<h4 style={{ fontSize: '16px', color: '#543310' }}>Total Monthly Income</h4>}
-                value={10} // Mengisi nilai dari data API
-                valueStyle={{ color: '#64748B', fontSize: '18px', fontWeight: 'bold' }}
-                formatter={value => `Rp. ${value.toLocaleString('id-ID')},00`}
-              />
-            </div>
-          </Card>
-        </Col>
-      </Row>
-
-      {/* Bagian bawah: 1 kotak */}
-      <Row gutter={[16, 16]} style={{ marginTop: '16px' }}>
-        <Col span={24}>
-          <Card
-            style={{ 
-              backgroundColor: '#FFFFFF', 
-              borderRadius: '8px', 
-              padding: '8px',
-              border: '3px solid #E2E8F0'
-            }}
-          >
-            <div style={{ textAlign: 'left' }}>
-              <div style={{ backgroundColor: '#543310', borderRadius: '8px', padding: '8px', marginBottom: '8px', display: 'inline-block' }}>
-                <DollarOutlined style={{ color: '#FFFFFF', fontSize: '38px' }} />
-              </div>
-              <Statistic
-                title={<h4 style={{ fontSize: '16px', color: '#543310' }}>All Total Income</h4>}
-                value={10} // Mengisi nilai dari data API
-                valueStyle={{ color: '#64748B', fontSize: '18px', fontWeight: 'bold' }}
-                formatter={value => `Rp. ${value.toLocaleString('id-ID')},00`}
-              />
-            </div>
-          </Card>
-        </Col>
-      </Row>
+      <Table
+        columns={columns}
+        bordered
+        dataSource={categoryData}
+        style={{ borderRadius: '8px' }}
+        rowClassName={() => 'ant-table-row ant-table-row-level-0'}
+        size="middle"
+        pagination={false}
+        components={{
+          header: {
+            cell: (props: React.HTMLProps<HTMLTableCellElement>) => (
+              <th {...props} style={{ backgroundColor: '#543310', color: 'white' }} />
+            ),
+          },
+        }}
+        footer={() => (
+          <div style={{ textAlign: 'center' }}>
+            <Pagination
+              pageSize={pageSize}
+              current={page}
+              total={listCategory?.totalCount || 0}
+              onChange={(newPage) => {
+                setPage(newPage);
+              }}
+              showSizeChanger={false}
+            />
+          </div>
+        )}
+      />
     </div>
-
   );
 }
+
+export default ManageMenuCategory;
