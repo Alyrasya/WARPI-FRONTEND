@@ -68,7 +68,7 @@ const Home = () => {
           <div className="w-full sm:w-1/3 group hover:scale-105 transition-transform duration-300">
             <div className="relative overflow-hidden rounded-full w-32 h-32 mx-auto">
               <Image
-                src="/roundedKopi.svg"
+                src="/img/kopi_susu.png"
                 alt="Coffee"
                 layout="fill"
                 objectFit="cover"
@@ -85,7 +85,7 @@ const Home = () => {
           <div className="w-full sm:w-1/3 group hover:scale-105 transition-transform duration-300">
             <div className="relative overflow-hidden rounded-full w-32 h-32 mx-auto">
               <Image
-                src="/roundedKopi.svg"
+                src="/img/kopi_susu.png"
                 alt="Coffee"
                 layout="fill"
                 objectFit="cover"
@@ -106,7 +106,7 @@ const Home = () => {
           Fun Fact
         </h2>
         <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
-          <Image src="/kopi.svg" alt="Fun Fact" width={100} height={100} />
+          <Image src="/img/kopi_susu.png" alt="Fun Fact" width={100} height={100} />
           <p className="max-w-md text-sm sm:text-base">
             Lorem Ipsum is simply dummy text of the printing and typesetting
             industry.
@@ -122,8 +122,8 @@ const Home = () => {
         <div className="flex flex-col sm:flex-row justify-center gap-6">
           <div className="bg-white shadow-lg rounded-lg p-4 max-w-xs">
             <Image
-              src="/makanan.svg"
-              alt="Coffee"
+              src="/img/makanan.png"
+              alt="Food"
               width={250}
               height={200}
               className="rounded-md"
@@ -134,8 +134,8 @@ const Home = () => {
           </div>
           <div className="bg-white shadow-lg rounded-lg p-4 max-w-xs">
             <Image
-              src="/makanan.svg"
-              alt="Satay"
+              src="/img/makanan.png"
+              alt="Food"
               width={250}
               height={200}
               className="rounded-md"
@@ -147,8 +147,8 @@ const Home = () => {
           {/* Card Baru */}
           <div className="bg-white shadow-lg rounded-lg p-4 max-w-xs">
             <Image
-              src="/makanan.svg"
-              alt="Noodles"
+              src="/img/makanan.png"
+              alt="Food"
               width={250}
               height={200}
               className="rounded-md"
@@ -168,7 +168,7 @@ const Home = () => {
         <div className="flex flex-col sm:flex-row justify-center gap-6">
           <div className="bg-white shadow-lg rounded-lg p-4 max-w-xs">
             <Image
-              src="/templateKopi.svg"
+              src="/img/kopi_hitam.png"
               alt="Coffee Latte"
               width={250}
               height={200}
@@ -180,7 +180,7 @@ const Home = () => {
           </div>
           <div className="bg-white shadow-lg rounded-lg p-4 max-w-xs">
             <Image
-              src="/templateKopi.svg"
+              src="/img/kopi_hitam.png"
               alt="Satay"
               width={250}
               height={200}
@@ -193,7 +193,7 @@ const Home = () => {
           {/* Card Baru */}
           <div className="bg-white shadow-lg rounded-lg p-4 max-w-xs">
             <Image
-              src="/templateKopi.svg"
+              src="/img/kopi_hitam.png"
               alt="Iced Americano"
               width={250}
               height={200}
