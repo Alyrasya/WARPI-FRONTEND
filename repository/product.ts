@@ -11,7 +11,7 @@
 
  const url = {
     getAllProduct(params: GetAllProduct){
-        return `/category/getAll?${qs.stringify(params)}`;
+        return `/product/getAll?${qs.stringify(params)}`;
     },
 
     getByIdProduct(id: string){

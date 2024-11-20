@@ -1,13 +1,12 @@
 "use client";
 import { Row, Col, Card, Statistic } from 'antd';
 import { DollarOutlined, ShoppingCartOutlined, UserOutlined, FileTextOutlined, BarChartOutlined } from '@ant-design/icons';
-import MenuFilter from '#/components/menufilter';
 
-export default function DashboardPage() {
+export default function historyPage() {
   return (
 
     <div style={{ padding: '16px' }}>
-        <MenuFilter />
+        <h1>hello world</h1>
     </div>
   );
 }
