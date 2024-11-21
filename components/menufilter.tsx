@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Input, Button, Card, Pagination } from "antd";
-import { SearchOutlined, FilterOutlined } from "@ant-design/icons";
+import { SearchOutlined } from "@ant-design/icons";
 import { productRepository } from "#/repository/product";
 
 interface Product {
@@ -11,15 +11,14 @@ interface Product {
   category_name: string;
 }
 
-
 const MenuFilter = () => {
   const [activeTab, setActiveTab] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(1);
-  const pageSize = 9;
+  const pageSize = 2;
 
   // Fetch products from API
-  const { data: listProducts } = productRepository.hooks.useGetAllProduct({
+  const { data: listProducts, isLoading } = productRepository.hooks.useGetAllProduct({
     page: page,
     page_size: pageSize,
     product_name: searchQuery,
@@ -27,13 +26,15 @@ const MenuFilter = () => {
   });
 
   // Map API data into structured product data
-  const products = listProducts?.data?.map((product: Product, index: number) => ({
+  const products = listProducts?.data?.map((product: Product) => ({
     key: product.id,
     name: product.product_name,
     price: product.price,
     image: product.photo_product,
     category: product.category_name,
   })) || [];
+
+  const totalProducts = listProducts?.totalCount || 0; // Total data from API
 
   const handleTabChange = (key: string) => {
     setActiveTab(key);
@@ -43,6 +44,15 @@ const MenuFilter = () => {
   const onSearch = (value: string) => {
     setSearchQuery(value);
     setPage(1); // Reset to first page when searching
+  };
+
+  const handlePaginationChange = (newPage: number) => {
+    setPage(newPage);
+
+    // Pindah halaman kategori jika page lebih dari 3
+    if (newPage > 3) {
+      setActiveTab("all"); // Contoh: reset ke 'all' atau ubah ke kategori lain
+    }
   };
 
   return (
@@ -57,14 +67,6 @@ const MenuFilter = () => {
           allowClear
           onChange={(e) => onSearch(e.target.value)}
         />
-
-        {/* Filter Button */}
-        {/* <Button
-          className="bg-[#543310] text-white rounded-full px-4 py-2 flex items-center"
-          icon={<FilterOutlined />}
-        >
-          Filter
-        </Button> */}
       </div>
 
       {/* Tabs for All, Food, Drinks */}
@@ -88,7 +90,7 @@ const MenuFilter = () => {
 
       {/* Product Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {products.map((product:any, index:any) => (
+        {products.map((product: any) => (
           <Card
             key={product.key}
             hoverable
@@ -103,12 +105,7 @@ const MenuFilter = () => {
           >
             <Card.Meta
               title={product.name}
-              description={
-                <div>
-                  <p>{product.price}</p> {/* Price */}
-                  <p className="text-gray-500">{product.sold}</p> {/* Sold */}
-                </div>
-              }
+              description={<p className="text-#374151">Rp {product.price}</p>}
             />
             <Button
               className="mt-4 w-full"
@@ -124,9 +121,9 @@ const MenuFilter = () => {
       <div className="flex justify-center mt-6">
         <Pagination
           current={page}
-          total={listProducts?.total || 0} // Total from API response
           pageSize={pageSize}
-          onChange={(page) => setPage(page)}
+          total={totalProducts}
+          onChange={handlePaginationChange}
         />
       </div>
     </div>
