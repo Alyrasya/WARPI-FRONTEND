@@ -6,6 +6,12 @@ import type { ColumnsType } from "antd/es/table";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { categoryRepository } from "#/repository/category";
 import { parseJwt } from "#/utils/convert";
+import CreateProductModal from "./CreateProductModal";
+import { mutate } from "swr";
+import { productRepository } from "#/repository/product";
+import EditCategoryModal from "../../category/EditCategoryModal";
+import EditProductModal from "./EditProductModal";
+import DetailProductModal from "./DetailProductModal";
 
 // Existing DataType interface for products
 interface DataType {
@@ -16,7 +22,7 @@ interface DataType {
   category_name: string;
   price: number;
   stock: number;
-  description: string;
+  description?: string;
   status_product: string;
 }
 
@@ -34,6 +40,30 @@ const ManageMenuProduct = () => {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
   const [idUser, setIdUser] = useState<string>("");
+
+  //Modal Create
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  // Handler untuk membuka dan menutup modal
+  const handleCreateOpenModal = () => setIsCreateModalOpen(true);
+  const handleCreateCloseModal = () => setIsCreateModalOpen(false);
+
+  // Modal Edit
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editProductData, setEditProductData] = useState<any | null>(null);
+  const handleEditOpenModal = (product: any) => {
+    setEditProductData(product);
+    setIsEditModalOpen(true);
+  };
+  const handleEditCloseModal = () => setIsEditModalOpen(false);
+
+  // Modal Detail
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [detailProductData, setDetailProductData] = useState<any | null>(null);
+  const handleDetailOpenModal = (product: any) => {
+    setDetailProductData(product);
+    setIsDetailModalOpen(true);
+  };
+  const handleDetailCloseModal = () => setIsEditModalOpen(false);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -67,6 +97,98 @@ const ManageMenuProduct = () => {
 
   const handleBack = () => {
     router.push(`/admin/${idUser}/management/category`);
+  };
+
+  const handleCreateProduct = async ({
+    product_name,
+    description,
+    price,
+    product_photo,
+  }: {
+    product_name: string;
+    description: string;
+    price: number;
+    product_photo: File | null;
+  }) => {
+    try {
+      const formData = new FormData();
+      formData.append("product_name", product_name);
+      formData.append("description", description);
+      formData.append("price", String(price));
+      formData.append("id_category", id || "");
+      if (product_photo) {
+        formData.append("product_photo", product_photo);
+      }
+  
+      const newProduct = await productRepository.api.createProduct(formData);
+  
+      if (newProduct) {
+        openSuccessNotification("Create product berhasil!");
+        mutate(
+          categoryRepository.url.getProductsByCategory(id || "", {
+            page,
+            page_size: pageSize,
+            product_name: searchInput,
+          })
+        );
+        handleCreateCloseModal();
+      }
+    } catch (error) {
+      console.error("Error create product:", error);
+      openErrorNotification("Create product gagal!");
+      handleCreateCloseModal();
+    }
+  };
+
+  const handleEditProduct = async ({
+    product_name,
+    description,
+    price,
+    stock,
+    product_photo,
+  }: {
+    product_name: string;
+    description: string;
+    price: number;
+    stock: number;
+    product_photo: File | null;
+  }) => {
+    try {
+      const formData = new FormData();
+      formData.append("product_name", product_name);
+      formData.append("description", description);
+      formData.append("price", String(price));
+      formData.append("stock", String(stock));
+      if (product_photo) {
+        formData.append("product_photo", product_photo);
+      }
+  
+      const updatedProduct = await productRepository.api.updateProduct(
+        editProductData.key,
+        formData
+      );
+  
+      if (updatedProduct) {
+        openSuccessNotification("Edit product berhasil!");
+        mutate(
+          categoryRepository.url.getProductsByCategory(id || "", {
+            page,
+            page_size: pageSize,
+            product_name: searchInput,
+          })
+        );
+        handleEditCloseModal();
+      }
+    } catch (error) {
+      console.error("Error edit product:", error);
+      openErrorNotification("Edit product gagal!");
+      handleEditCloseModal();
+    }
+  }; 
+  
+  const handleViewDetailProduct = (id: string) => {
+    setDetailProductData(id);
+    setIsDetailModalOpen(true);
   };
 
   const openSuccessNotification = (message: string) => {
@@ -160,12 +282,14 @@ const ManageMenuProduct = () => {
       render: (_: unknown, record: DataType) => (
         <Space size="middle">
           <Button
-            icon={<EditOutlined />}
+            icon={<EditOutlined style={{color: '#543310'}}/>}
             type="link"
+            onClick={() => handleEditOpenModal(record)} 
           />
           <Button
-            icon={<EyeOutlined />}
+            icon={<EyeOutlined style={{color: '#543310'}}/>}
             type="link"
+            onClick={() => handleViewDetailProduct(record.key)}
           />
         </Space>
       ),
@@ -176,8 +300,8 @@ const ManageMenuProduct = () => {
     <div style={{ padding: "15px", borderRadius: "8px" }}>
       <Button
         type="link"
-        icon={<ArrowLeftOutlined style={{ fontSize: "18px", fontWeight: "bold" }} />}
-        style={{ marginBottom: "16px", fontWeight: "bold" }}
+        icon={<ArrowLeftOutlined style={{ fontSize: "18px", fontWeight: "bold", color: '#543310' }} />}
+        style={{ marginBottom: "10px", fontWeight: "bold", color: '#543310' }}
         onClick={handleBack}
       >
         Back
@@ -218,6 +342,7 @@ const ManageMenuProduct = () => {
             boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
             width: "130px",
           }}
+          onClick={handleCreateOpenModal}
         >
           <span style={{ fontWeight: "bold", color: "#FFFFFF", fontSize: "16px" }}>
             Product
@@ -251,6 +376,27 @@ const ManageMenuProduct = () => {
             />
           </div>
         )}
+      />
+
+      <CreateProductModal 
+        open={isCreateModalOpen} 
+        onClose={handleCreateCloseModal} 
+        onSubmit={handleCreateProduct} 
+      />
+
+      {editProductData && (
+        <EditProductModal
+          open={isEditModalOpen}
+          onClose={handleEditCloseModal}
+          onSubmit={handleEditProduct}
+          product={editProductData}
+        />
+      )}
+
+      <DetailProductModal
+        isOpen={isDetailModalOpen}
+        onClose={() => setIsDetailModalOpen(false)}
+        id={detailProductData}
       />
     </div>
   );
