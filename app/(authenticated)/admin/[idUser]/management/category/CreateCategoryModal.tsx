@@ -1,13 +1,13 @@
 "use client";
 import { Modal, Form, Input, Button } from "antd";
 
-interface CreateAccountModalProps {
+interface CreateCategoryModalProps {
   open: boolean;
   onClose: () => void;
-  onSubmit: (values: { username: string; email: string }) => void;
+  onSubmit: (values: { category_name: string }) => void;
 }
 
-const CreateAccountModal: React.FC<CreateAccountModalProps> = ({
+const CreateCategorytModal: React.FC<CreateCategoryModalProps> = ({
   open,
   onClose,
   onSubmit,
@@ -28,7 +28,7 @@ const CreateAccountModal: React.FC<CreateAccountModalProps> = ({
 
   return (
     <Modal
-      title="Create Account"
+      title="Create Category"
       open={open}
       onCancel={() => {
         form.resetFields();
@@ -46,21 +46,11 @@ const CreateAccountModal: React.FC<CreateAccountModalProps> = ({
           onFinish={handleFormSubmit}
         >
           <Form.Item
-            name="username"
-            label="Username"
-            rules={[{ required: true, message: "Mohon masukan username" }]}
+            name="category_name"
+            label="Category Name"
+            rules={[{ required: true, message: "Mohon masukan nama kategori" }]}
           >
-            <Input placeholder="Masukan username" />
-          </Form.Item>
-          <Form.Item
-            name="email"
-            label="Email"
-            rules={[
-              { required: true, message: "Mohon masukan email" },
-              { type: "email", message: "Mohon masukan email yang valid" },
-            ]}
-          >
-            <Input placeholder="Masukan email" />
+            <Input placeholder="Masukan nama kategori" />
           </Form.Item>
         </Form>
       </div>
@@ -70,7 +60,7 @@ const CreateAccountModal: React.FC<CreateAccountModalProps> = ({
         style={{
           display: "flex",
           justifyContent: "flex-end",
-          borderTop: "1px solid #f0f0f0", // Garis pemisah footer
+          borderTop: "1px solid #f0f0f0",
           paddingTop: "14px",
         }}
       >
@@ -85,4 +75,4 @@ const CreateAccountModal: React.FC<CreateAccountModalProps> = ({
   );
 };
 
-export default CreateAccountModal;
+export default CreateCategorytModal;

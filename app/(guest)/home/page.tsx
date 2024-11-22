@@ -12,7 +12,14 @@ const Home = () => {
   return (
     <>
       {/* Navbar */}
-      <nav className="bg-[#543310] py-1 px-6 sm:px-8 md:px-10 lg:px-32 xl:px-8 flex justify-between items-center">
+      <nav className="bg-[#543310] py-1 px-6 sm:px-8 md:px-10 lg:px-32 xl:px-8 flex justify-between items-center"
+        style={{
+          position: "sticky",
+          top: "0",
+          zIndex: "10",
+          transition: "all 0.3s ease-in-out",
+        }}
+      >
         <div
           className="logo"
           style={{
@@ -205,6 +212,7 @@ const Home = () => {
           </div>
         </div>
       </section>
+      
       {/* Footer */}
       <footer className="bg-[#543310] text-white py-6 ">
         <div className="flex justify-center items-center gap-5 text-center">

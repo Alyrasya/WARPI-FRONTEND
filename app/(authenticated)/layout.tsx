@@ -77,7 +77,7 @@ export default function MainLayout({
         setPageTitle("Keranjang");
       }
     }
-  }, [pathname, idUser]); // Add idUser as dependency
+  }, [pathname, idUser]);
 
   const handleLogout = () => {
     localStorage.clear();
@@ -94,7 +94,7 @@ export default function MainLayout({
   const handleMenuClick = (key: string, path: string, title: string) => {
     setSelectedKey(key);
     setPageTitle(title);
-    const updatedPath = path.replace(":id", idUser); // Pastikan ID digantikan dengan idUser
+    const updatedPath = path.replace(":id", idUser);
     router.push(updatedPath);
   };
   
@@ -314,7 +314,7 @@ export default function MainLayout({
             }}
             icon={<UserOutlined />}
             size={36}
-            onClick={handleAvatarClick} // Use handleAvatarClick here
+            onClick={handleAvatarClick}
           />
 
           {/* User Info */}
@@ -393,8 +393,11 @@ export default function MainLayout({
       >
         <Content
           style={{
+            // position: "fixed",
+            // height: "100%",
+            // width: "87%",
             padding: 24,
-            marginTop: 64,
+            marginTop: 50,
             backgroundColor: "white",
             minHeight: "100vh",
           }}
