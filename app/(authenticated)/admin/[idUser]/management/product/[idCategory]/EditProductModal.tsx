@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Modal, Form, Input, InputNumber, Upload, Button } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
-import { url } from "inspector";
 
 interface EditProductModalProps {
   open: boolean;
@@ -15,7 +14,7 @@ interface EditProductModalProps {
   }) => void;
   product: {
     product_name: string;
-    description: string;
+    description?: string;
     price: number;
     stock: number;
     product_photo: string;
@@ -39,27 +38,22 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
         price: product.price,
         stock: product.stock,
       });
-  
-      setFileList(
-        product.product_photo
-          ? [
-              {
-                uid: product.product_photo,
-                name: product.product_photo,
-                status: "done",
-                url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3222'}/category/upload/${product.product_photo}`
-              },
-            ]
-          : []
-      );
+
+      setFileList([
+        {
+          uid: product.product_photo,
+          name: product.product_photo,
+          status: "done",
+          url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3222'}/category/upload/${product.product_photo}`
+        },
+      ]);
     }
   }, [product, form]);
-  
 
   const handleFinish = (values: any) => {
     const productPhotoFile =
-      fileList.length > 0 && fileList[0].product_photo
-        ? fileList[0].product_photo
+      fileList.length > 0 && fileList[0].originFileObj
+        ? fileList[0].originFileObj
         : null;
 
     onSubmit({
@@ -85,82 +79,68 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
       open={open}
       title="Edit Product"
       onCancel={onClose}
-      footer={null}
-      bodyStyle={{ padding: "10px", borderTop: "1px solid #f0f0f0" }}
-    >
-      {/* Content Section */}
-      <div style={{ borderBottom: "1px solid #f0f0f0"}}>
-        <Form form={form} layout="vertical" onFinish={handleFinish}>
-          <Form.Item
-            label="Product Name"
-            name="product_name"
-            rules={[{ required: true, message: "Please enter the product name" }]}
-          >
-            <Input placeholder="Enter product name" />
-          </Form.Item>
-
-          <Form.Item label="Description" name="description">
-            <Input.TextArea rows={3} placeholder="Enter product description" />
-          </Form.Item>
-
-          <Form.Item
-            label="Price"
-            name="price"
-            rules={[{ required: true, message: "Please enter the price" }]}
-          >
-            <InputNumber
-              placeholder="Enter product price"
-              style={{ width: "100%" }}
-            />
-          </Form.Item>
-
-          <Form.Item
-            label="Stock"
-            name="stock"
-            rules={[
-              { required: true, message: "Please enter the stock quantity" },
-            ]}
-          >
-            <InputNumber
-              placeholder="Enter stock quantity"
-              style={{ width: "100%" }}
-            />
-          </Form.Item>
-
-          <Form.Item label="Product Photo">
-            <Upload
-              accept="image/*"
-              beforeUpload={() => false}
-              fileList={fileList}
-              onChange={handleFileChange}
-              listType="picture"
-            >
-              {fileList.length === 0 && (
-                <Button icon={<UploadOutlined />}>Upload Product Photo</Button>
-              )}
-            </Upload>
-          </Form.Item>
-        </Form>
-      </div>
-
-      {/* Footer Section */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "flex-end",
-          borderTop: "1px solid #f0f0f0",
-          paddingTop: "14px",
-        }}
-      >
-        <Button onClick={onClose} style={{ marginRight: "8px" }}>
+      footer={[
+        <Button key="cancel" onClick={onClose}>
           Cancel
-        </Button>
-        <Button type="primary" onClick={() => form.submit()}>
+        </Button>,
+        <Button key="submit" type="primary" onClick={() => form.submit()}>
           Save Changes
-        </Button>
-      </div>
+        </Button>,
+      ]}
+    >
+      <Form form={form} layout="vertical" onFinish={handleFinish}>
+        <Form.Item
+          label="Product Name"
+          name="product_name"
+          rules={[{ required: true, message: "Please enter the product name" }]}
+        >
+          <Input placeholder="Enter product name" />
+        </Form.Item>
+
+        <Form.Item label="Description" name="description">
+          <Input.TextArea rows={3} placeholder="Enter product description" />
+        </Form.Item>
+
+        <Form.Item
+          label="Price"
+          name="price"
+          rules={[{ required: true, message: "Please enter the price" }]}
+        >
+          <InputNumber
+            placeholder="Enter product price"
+            style={{ width: "100%" }}
+          />
+        </Form.Item>
+
+        <Form.Item
+          label="Stock"
+          name="stock"
+          rules={[{ required: true, message: "Please enter the stock quantity" }]}
+        >
+          <InputNumber
+            placeholder="Enter stock quantity"
+            style={{ width: "100%" }}
+          />
+        </Form.Item>
+
+        <Form.Item label="Product Photo">
+          <Upload
+            accept="image/*"
+            beforeUpload={() => false}
+            fileList={fileList}
+            onChange={handleFileChange}
+            listType="picture"
+          >
+            {fileList.length === 0 && (
+              <Button icon={<UploadOutlined />}>Upload Product Photo</Button>
+            )}
+          </Upload>
+        </Form.Item>
+      </Form>
     </Modal>
   );
 };
 
 export default EditProductModal;
+
+

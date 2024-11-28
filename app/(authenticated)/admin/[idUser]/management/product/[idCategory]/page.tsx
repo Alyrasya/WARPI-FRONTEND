@@ -1,15 +1,13 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Input, Button, Table, Space, notification, Pagination } from "antd";
 import { SearchOutlined, EditOutlined, EyeOutlined, PlusCircleOutlined, ArrowLeftOutlined } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { categoryRepository } from "#/repository/category";
-import { parseJwt } from "#/utils/convert";
 import CreateProductModal from "./CreateProductModal";
 import { mutate } from "swr";
 import { productRepository } from "#/repository/product";
-import EditCategoryModal from "../../category/EditCategoryModal";
 import EditProductModal from "./EditProductModal";
 import DetailProductModal from "./DetailProductModal";
 
@@ -39,7 +37,6 @@ const ManageMenuProduct = () => {
   const [searchInput, setSearchInput] = useState("");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
-  const [idUser, setIdUser] = useState<string>("");
 
   //Modal Create
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -58,22 +55,7 @@ const ManageMenuProduct = () => {
 
   // Modal Detail
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
-  const [detailProductData, setDetailProductData] = useState<any | null>(null);
-  const handleDetailOpenModal = (product: any) => {
-    setDetailProductData(product);
-    setIsDetailModalOpen(true);
-  };
-  const handleDetailCloseModal = () => setIsEditModalOpen(false);
-
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      const payload = parseJwt(token);
-      if (payload?.id) {
-        setIdUser(payload.id);
-      } 
-    } 
-  }, []);
+  const [detailProductData, setDetailProductData] = useState<any | null>();  
 
   const { data: listProduct } =
     categoryRepository.hooks.useGetProductsByCategory(id || "", {
@@ -96,7 +78,7 @@ const ManageMenuProduct = () => {
     })) || [];
 
   const handleBack = () => {
-    router.push(`/admin/${idUser}/management/category`);
+    router.back();
   };
 
   const handleCreateProduct = async ({
@@ -185,11 +167,11 @@ const ManageMenuProduct = () => {
       handleEditCloseModal();
     }
   }; 
-  
+
   const handleViewDetailProduct = (id: string) => {
     setDetailProductData(id);
     setIsDetailModalOpen(true);
-  };
+  };  
 
   const openSuccessNotification = (message: string) => {
     notification.success({
@@ -279,17 +261,17 @@ const ManageMenuProduct = () => {
       key: "action",
       align: "center",
       width: "11%",
-      render: (_: unknown, record: DataType) => (
+      render: (value) => (
         <Space size="middle">
           <Button
             icon={<EditOutlined style={{color: '#543310'}}/>}
             type="link"
-            onClick={() => handleEditOpenModal(record)} 
+            onClick={() => handleEditOpenModal(value)} 
           />
           <Button
             icon={<EyeOutlined style={{color: '#543310'}}/>}
             type="link"
-            onClick={() => handleViewDetailProduct(record.key)}
+            onClick={() => handleViewDetailProduct(value.key)}
           />
         </Space>
       ),
