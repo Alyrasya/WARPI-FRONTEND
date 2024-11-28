@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Input, Button, Card, Pagination } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
-import { productRepository } from "#/repository/product";
+import { GetAllProduct, productRepository } from "#/repository/product";
 import { categoryRepository } from "#/repository/category";
 
 interface Product {
@@ -10,6 +10,11 @@ interface Product {
   price: number;
   photo_product: string;
   category_name: string;
+}
+
+async function useGetAllProduct(params:GetAllProduct) {
+  const res = await fetch("https://")
+  
 }
 
 const MenuFilter = () => {
