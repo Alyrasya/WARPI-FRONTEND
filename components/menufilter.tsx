@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Input, Button, Card, Pagination } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import { productRepository } from "#/repository/product";
+import { categoryRepository } from "#/repository/category";
 
 interface Product {
   id: number;
@@ -15,51 +16,59 @@ const MenuFilter = () => {
   const [activeTab, setActiveTab] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(1);
-  const pageSize = 2;
+  const pageSize = 4;
+
+  // Fetch categories from API
+  const { data: categoryData, isLoading: isCategoryLoading } =
+    categoryRepository.hooks.useGetAllCategory({
+      page: 1,
+      page_size: 100, // Ambil semua kategori
+    });
+
+  // Ambil nama kategori dengan status aktif
+  const categories = categoryData?.data
+    ?.filter((category: any) => category.status_category === "active") // Filter kategori aktif
+    ?.map((category: any) => category.category_name) || [];
+  const categoryTabs = ["all", ...categories];
 
   // Fetch products from API
-  const { data: listProducts, isLoading } = productRepository.hooks.useGetAllProduct({
-    page: page,
-    page_size: pageSize,
-    product_name: searchQuery,
-    category_name: activeTab === "all" ? undefined : activeTab,
-  });
+  const { data: listProducts, isLoading: isProductLoading } =
+    productRepository.hooks.useGetAllProduct({
+      page: page,
+      page_size: pageSize,
+      product_name: searchQuery,
+      category_name: activeTab === "all" ? undefined : activeTab,
+    });
 
-  // Map API data into structured product data
-  const products = listProducts?.data?.map((product: Product) => ({
-    key: product.id,
-    name: product.product_name,
-    price: product.price,
-    image: product.photo_product,
-    category: product.category_name,
-  })) || [];
+  const products =
+    listProducts?.data?.map((product: Product) => ({
+      key: product.id,
+      name: product.product_name,
+      price: product.price,
+      image: product.photo_product,
+      category: product.category_name,
+    })) || [];
 
-  const totalProducts = listProducts?.totalCount || 0; // Total data from API
+  const totalProducts = listProducts?.totalCount || 0;
 
   const handleTabChange = (key: string) => {
     setActiveTab(key);
-    setPage(1); // Reset to first page when changing tabs
+    setPage(1); // Reset page ke 1 saat kategori berubah
   };
 
   const onSearch = (value: string) => {
     setSearchQuery(value);
-    setPage(1); // Reset to first page when searching
+    setPage(1); // Reset page ke 1 saat pencarian berubah
   };
 
   const handlePaginationChange = (newPage: number) => {
     setPage(newPage);
-
-    // Pindah halaman kategori jika page lebih dari 3
-    if (newPage > 3) {
-      setActiveTab("all"); // Contoh: reset ke 'all' atau ubah ke kategori lain
-    }
   };
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
       {/* Search and Filter */}
       <div className="flex justify-center items-center mb-4 space-x-16">
-        {/* Search Input */}
         <Input
           placeholder="Search menu"
           prefix={<SearchOutlined style={{ color: "#543310" }} />}
@@ -69,14 +78,13 @@ const MenuFilter = () => {
         />
       </div>
 
-      {/* Tabs for All, Food, Drinks */}
+      {/* Tabs for All Categories */}
       <div className="flex justify-center space-x-2 mb-6">
-        {["all", "food", "drinks"].map((tab) => (
+        {categoryTabs.map((tab) => (
           <div
             key={tab}
             onClick={() => handleTabChange(tab)}
-            className={`cursor-pointer flex items-center justify-center border-2 rounded-md transition-all duration-300
-            ${
+            className={`cursor-pointer flex items-center justify-center border-2 rounded-md transition-all duration-300 ${
               activeTab === tab
                 ? "border-[#543310] bg-[#543310] text-white"
                 : "border-transparent text-[#543310]"
