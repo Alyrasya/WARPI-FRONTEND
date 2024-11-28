@@ -11,7 +11,7 @@
 
  const url = {
     getAllProduct(params: GetAllProduct){
-        return `/category/getAll?${qs.stringify(params)}`;
+        return `/product/getAll?${qs.stringify(params)}`;
     },
 
     getByIdProduct(id: string){
@@ -25,6 +25,7 @@
     updateProduct(id: string){
         return `/product/${id}/edit`
     }
+
  }
 
  const hooks = {
@@ -47,6 +48,8 @@
         const response = await http.put(url.updateProduct(id)).send(data);
         return response;
     }
+
+    
  }
 
  export const productRepository = {
