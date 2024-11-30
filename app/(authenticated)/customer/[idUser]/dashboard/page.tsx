@@ -38,7 +38,7 @@ export default function DashboardPage() {
     categoryData?.data
       ?.filter((category: any) => category.status_category === "active") // Filter kategori aktif
       ?.map((category: any) => category.category_name) || [];
-  const categoryTabs = ["all", ...categories];
+  const categoryTabs = [ ...categories];
 
   // Fetch products from API
   const { data: listProducts } = productRepository.hooks.useGetAllProduct({
