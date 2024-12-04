@@ -16,7 +16,7 @@ interface Product {
 }
 
 export default function DashboardPage() {
-  const [activeTab, setActiveTab] = useState("all");
+  const [activeTab, setActiveTab] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(1);
   const pageSize = 4;
@@ -45,7 +45,7 @@ export default function DashboardPage() {
     page: page,
     page_size: pageSize,
     product_name: searchQuery,
-    category_name: activeTab === "all" ? "" : activeTab, // Set category_name menjadi "" saat activeTab "all"
+    category_name: activeTab === "All" ? "" : activeTab, // Set category_name menjadi "" saat activeTab "all"
   });
 
   // Filter produk berdasarkan status_product "active"
