@@ -1,7 +1,7 @@
 "use client";
 import { Modal, Button } from "antd";
 import { productRepository } from "#/repository/product";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface DetailProductModalProps {
   isOpen: boolean;
@@ -15,11 +15,15 @@ const DetailProductModal = ({
   onClose,
   id,
 }: DetailProductModalProps) => {
-  const [detailProductData, setDetailProductData] = useState<any | null>(); 
-  if(id){
-    const { data: product } = productRepository.hooks.useGetByIdProduct(id);
-    setDetailProductData(product)
-  }
+  const { data: product } = productRepository.hooks.useGetByIdProduct(id || "");
+  const [detailProductData, setDetailProductData] = useState<any | null>(null);
+
+  // Mengatur data produk saat data tersedia
+  useEffect(() => {
+    if (product) {
+      setDetailProductData(product);
+    }
+  }, [product]);
 
   const imgProduct = (image: string) =>
     image = `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3222"}/category/upload/${image}`;

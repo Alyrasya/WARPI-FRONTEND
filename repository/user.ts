@@ -21,16 +21,16 @@ const url = {
         return `/user/getAll?${qs.stringify(params)}`
     },
 
-	editStatusCashier(id: string) {
-		return `/user/${id}/status`;
-	},
-
 	editPassword(id: string) {
 		return `/user/${id}/password`;
 	},
 
 	resetPassword(id: string) {
 		return `/user/${id}/reset-password`;
+	},
+
+	editStatusCashier(id: string) {
+		return `/user/${id}/status`;
 	},
 }
 
@@ -51,10 +51,6 @@ const api = {
 		return response;
 	},
 
-    async editStatusCashier(id: string, data: any){
-        return await http.put(url.editStatusCashier(id)).send(data);
-    },
-
 	async editPassword(id: string, data: any){
         return await http.put(url.editPassword(id)).send(data);
     },
@@ -63,6 +59,9 @@ const api = {
 		return await http.put(url.resetPassword(id));
 	},
 	
+	async editStatusCashier(id: string, data: any){
+        return await http.put(url.editStatusCashier(id)).send(data);
+    },
 }
 
 export const userRepository = {
