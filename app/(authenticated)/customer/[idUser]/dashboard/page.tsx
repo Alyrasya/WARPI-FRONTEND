@@ -1,10 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Input, Button, Card, Pagination } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import { productRepository } from "#/repository/product";
 import { categoryRepository } from "#/repository/category";
+import { orderRepository } from "#/repository/order";
+import { parseJwt } from "#/utils/convert";
 
 interface Product {
   id: number;
@@ -19,7 +21,8 @@ export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(1);
-  const pageSize = 4;
+  const pageSize = 3;
+  const [idUser, setIdUser] = useState<string>("");
 
   // Function to construct image URL
   const imgProduct = (image: string) =>
@@ -32,7 +35,15 @@ export default function DashboardPage() {
     page: 1,
     page_size: 100, // Ambil semua kategori
   });
-
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      const payload = parseJwt(token);
+      if (payload?.id) {
+        setIdUser(payload.id);
+      }
+    }
+  }, []);
   // Ambil nama kategori dengan status aktif
   const categories =
     categoryData?.data
@@ -45,11 +56,11 @@ export default function DashboardPage() {
     page: page,
     page_size: pageSize,
     product_name: searchQuery,
-    category_name: activeTab === "All" ? "" : activeTab, // Set category_name menjadi "" saat activeTab "all"
+    category_name: activeTab === "All"? "" : activeTab, // Set category_name menjadi "" saat activeTab "all"
   });
 
   // Filter produk berdasarkan status_product "active"
-  const products =
+  const product =
     listProducts?.data
       ?.filter((product: Product) => product.status_product === "active")
       ?.map((product: Product) => ({
@@ -60,7 +71,7 @@ export default function DashboardPage() {
         category: product.category,
       })) || [];
 
-  const totalProducts = products.length; // Total produk hanya yang aktif
+      const totalProducts = listProducts?.total || 4;// Total produk hanya yang aktif
 
   const handleTabChange = (key: string) => {
     setActiveTab(key);
@@ -75,6 +86,17 @@ export default function DashboardPage() {
   const handlePaginationChange = (newPage: number) => {
     setPage(newPage);
   };
+  const AddToCart = async (id_product: string[], products?: any) => {
+    console.log(id_product); // Debugging log to see the product IDs being passed
+    try {
+      // Call the addToCart method from orderRepository
+      const response = await orderRepository.api.addToCart(idUser, { id_product });
+      console.log("Response from adding to cart:", response); // You can handle the response here if needed
+    } catch (e) {
+      console.error("Error adding to cart:", e);
+      return e; // Return the error for further handling
+    }
+};
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
@@ -109,7 +131,7 @@ export default function DashboardPage() {
 
       {/* Product Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {products.map((product: any) => (
+        {product.map((product: any) => (
           <Card
             key={product.key}
             hoverable
@@ -132,6 +154,7 @@ export default function DashboardPage() {
               }
             />
             <Button
+            onClick={() => AddToCart([product.key], product)}
               className="mt-4 w-full"
               style={{ backgroundColor: "#543310", color: "white" }}
             >
@@ -143,13 +166,16 @@ export default function DashboardPage() {
 
       {/* Pagination */}
       <div className="flex justify-center mt-6">
-        <Pagination
-          current={page}
-          pageSize={pageSize}
-          total={totalProducts}
-          onChange={handlePaginationChange}
-        />
+      <Pagination
+              pageSize={pageSize}
+              current={page}
+              total={totalProducts}
+              onChange={(newPage) => {
+                setPage(newPage);
+              }}
+              showSizeChanger={false}
+            />
       </div>
-    </div>
-  );
+    </div>
+  );
 }

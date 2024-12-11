@@ -1,74 +1,131 @@
-"use client";
-import { LeftOutlined, DeleteOutlined } from "@ant-design/icons";
-import Image from "next/image";
+"use client"
+import React, { useEffect, useState } from "react";
+import { orderRepository } from "#/repository/order";
+import { parseJwt } from "#/utils/convert";
+import { LeftOutlined } from "@ant-design/icons";
+import { Card, Spin, Empty } from "antd";
+import { usePathname } from "next/navigation"; 
+import useSWR from "swr";
 
 export default function CartPage() {
+  const pathname = usePathname(); 
+  const [idUser, setIdUser] = useState<string>("");
+
+  // Ambil ID User dari Token
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      const payload = parseJwt(token);
+      if (payload?.id) {
+        console.log("User ID:", payload.id); 
+        setIdUser(payload.id);
+      }
+    }
+  }, []);
+  const [cartProducts, setCartProducts] = useState<any[]>([]);
+  const AddToCart = async (id_product: string[], product: any) => {
+    try {
+      const response = await orderRepository.api.addToCart(idUser, { id_product });
+      if (response?.status === 200) {
+        setCartProducts((prev) => [...prev, product]);
+      }
+    } catch (e) {
+      console.error("Error adding to cart:", e);
+    }
+  };
+
+  // Fetch Data
+  const fetcher = async (url: string) => {
+    if (!idUser) return { data: [] };
+    try {
+      const response = await orderRepository.api.getCart(idUser);
+      return response?.body || { data: [] };
+    } catch (error) {
+      console.error("Error fetching cart:", error);
+      return { data: [] };
+    }
+  };
+
+  const { data: products, error, isLoading } = useSWR(
+    idUser ? `/cart/${idUser}` : null,
+    fetcher
+  );
+
+  console.log("Produk:", products); 
+
+  const imgProduct = (image: string) =>
+    `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3222"}/category/upload/${image}`;
+
   return (
     <div style={{ padding: "16px" }}>
-      {/* Header */}
       <div className="p-4">
         <div className="flex items-center justify-between">
-          {/* Back Icon */}
-          <LeftOutlined className="text-gray-500 text-xl cursor-pointer" />
-          {/* Title */}
-          <h1 className="text-center text-gray-800 font-medium text-lg flex-grow">My Cart</h1>
-          {/* Spacer (for alignment) */}
+          <LeftOutlined
+            className="text-gray-500 text-xl cursor-pointer"
+            onClick={() => (window.location.href = `/customer/${idUser}/dashboard`)} 
+          />
+          <h1 className="text-center text-gray-800 font-medium text-lg flex-grow">
+            My Cart
+          </h1>
           <div className="w-5"></div>
         </div>
       </div>
+      
+      {isLoading && <Spin size="large" className="my-10 mx-auto" />}
+      {error && <p className="text-red-500">Error loading cart data.</p>}
 
-      {/* Cart Items */}
-      <div className="space-y-4">
-  {[1, 2, 3].map((_, index) => (
-    <div
-      key={index}
-      className="relative bg-white p-4 rounded-lg shadow-md flex items-center"
-    >
-      {/* Product Image */}
-      <Image
-        src="/coffee.jpg" // Ganti dengan URL gambar yang sesuai
-        alt="Coffee"
-        width={80}
-        height={80}
-        className="rounded-md"
-      />
-      {/* Product Info */}
-      <div className="ml-4 flex-1">
-        <h2 className="text-lg font-semibold text-gray-800">Coffee</h2>
-        <p className="text-gray-800 font-semibold text-lg">Rp139.900</p>
-      </div>
+      {Array.isArray(products?.data) && products?.data.length > 0 ? (
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {products?.data.map((product: any) => (
+              <Card
+                key={product.id}
+                hoverable
+                cover={
+                  <img
+                    alt={product.product_name}
+                    src={imgProduct(product.product_photo)}
+                    className="h-48 object-cover"
+                  />
+                }
+                className="shadow-md"
+              >
+                <Card.Meta
+                  title={product.product_name}
+                  description={
+                    <div>
+                      <p className="text-gray-500">{product.category.category_name}</p>
+                      <p className="text-gray-800">Rp {product.price}</p>
+                    </div>
+                  }
+                />
+              </Card>
+            ))}
+          </div>
 
-      {/* Trash Icon */}
-      <button
-        className="absolute top-4 right-4 text-red-500 text-xl focus:outline-none"
-        title="Remove Item"
-      >
-        <DeleteOutlined style={{ fontSize: "24px" }} />
-      </button>
-
-      {/* Quantity Buttons */}
-      <div className="mt-4 flex justify-end items-center space-x-2">
-        <button className="px-3 py-1 text-gray-500 border border-gray-300 rounded">
-          -
-        </button>
-        <span className="px-4 text-gray-800">01</span>
-        <button className="px-3 py-1 text-gray-500 border border-gray-300 rounded">
-          +
-        </button>
-      </div>
-    </div>
-  ))}
-</div>
-
-
-      {/* Total and Payment */}
-      <div className="mt-4">
-        <div className="flex justify-between items-center text-lg font-semibold">
-          <span>Total</span>
-          <span>Rp419.700</span>
-        </div>
-        <button className="w-full mt-4 bg-[#543310] text-white py-2 rounded-md">Payment</button>
-      </div>
+          <div className="mt-4">
+            <div className="flex justify-between items-center text-lg font-semibold">
+              <span>Total</span>
+              <span>
+                Rp{" "}
+                {products?.data?.reduce(
+                  (sum: number, item: any) => sum + item.price,
+                  0
+                )}
+              </span>
+            </div>
+            <button className="w-full mt-4 bg-[#543310] text-white py-2 rounded-md">
+              Payment
+            </button>
+          </div>
+        </>
+      ) : (
+        !isLoading && (
+          <div className="flex justify-center items-center h-64">
+            <Empty description="Your cart is empty" />
+          </div>
+        )
+      )}
     </div>
   );
 }
