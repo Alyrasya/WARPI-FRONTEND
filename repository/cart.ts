@@ -4,7 +4,7 @@ import useSWR from 'swr';
 
 const url = {
     getCart(id_user:any){
-        return `cart/${id_user}`
+        return `/cart/${id_user}`
     }
 }
 const hooks = {

@@ -1,14 +1,24 @@
-"use client"
+"use client";
 import React, { useEffect, useState } from "react";
 import { orderRepository } from "#/repository/order";
 import { parseJwt } from "#/utils/convert";
-import { LeftOutlined } from "@ant-design/icons";
-import { Card, Spin, Empty } from "antd";
-import { usePathname } from "next/navigation"; 
-import useSWR from "swr";
+import { DeleteOutlined, LeftOutlined } from "@ant-design/icons";
+import {
+  Card,
+  Spin,
+  Empty,
+  InputNumber,
+  Button,
+  Row,
+  Col,
+  message,
+} from "antd";
+import { usePathname } from "next/navigation";
+import useSWR, { mutate } from "swr";
+import { cartRepository } from "#/repository/cart";
 
 export default function CartPage() {
-  const pathname = usePathname(); 
+  const pathname = usePathname();
   const [idUser, setIdUser] = useState<string>("");
 
   // Ambil ID User dari Token
@@ -17,52 +27,56 @@ export default function CartPage() {
     if (token) {
       const payload = parseJwt(token);
       if (payload?.id) {
-        console.log("User ID:", payload.id); 
+        console.log("User ID:", payload.id);
         setIdUser(payload.id);
       }
     }
   }, []);
   const [cartProducts, setCartProducts] = useState<any[]>([]);
-  const AddToCart = async (id_product: string[], product: any) => {
-    try {
-      const response = await orderRepository.api.addToCart(idUser, { id_product });
-      if (response?.status === 200) {
-        setCartProducts((prev) => [...prev, product]);
-      }
-    } catch (e) {
-      console.error("Error adding to cart:", e);
-    }
-  };
-
-  // Fetch Data
-  const fetcher = async (url: string) => {
-    if (!idUser) return { data: [] };
-    try {
-      const response = await orderRepository.api.getCart(idUser);
-      return response?.body || { data: [] };
-    } catch (error) {
-      console.error("Error fetching cart:", error);
-      return { data: [] };
-    }
-  };
-
-  const { data: products, error, isLoading } = useSWR(
-    idUser ? `/cart/${idUser}` : null,
-    fetcher
-  );
-
-  console.log("Produk:", products); 
-
+  console.log("idUser", idUser);
+  const {
+    data: keranjangData,
+    isValidating: isLoading,
+    error,
+  } = cartRepository.hooks.getCart(idUser);
+  // console.log(keranjangData?.order)
   const imgProduct = (image: string) =>
-    `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3222"}/category/upload/${image}`;
+    `${
+      process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3222"
+    }/category/upload/${image}`;
+  {
+    keranjangData?.order.map((order: any) => console.log(order?.id));
+  }
+  const deleteOrder = async (id_order: any) => {
+    console.log(id_order, "id_order");
+    if (!id_order) {
+      message.error("Order ID is invalid.");
+      return;
+    }
 
+    try {
+      console.log("Sending delete request for order ID:", id_order);
+      const response = await orderRepository.api.deleteOrder(id_order);
+
+      if (response) {
+        message.success("Order deleted successfully!");
+      } else {
+        message.error("Failed to delete order.");
+      }
+    } catch (error) {
+      console.error("Error deleting order:", error);
+      message.error("An error occurred while deleting the order.");
+    }
+  };
   return (
     <div style={{ padding: "16px" }}>
       <div className="p-4">
         <div className="flex items-center justify-between">
           <LeftOutlined
             className="text-gray-500 text-xl cursor-pointer"
-            onClick={() => (window.location.href = `/customer/${idUser}/dashboard`)} 
+            onClick={() =>
+              (window.location.href = `/customer/${idUser}/dashboard`)
+            }
           />
           <h1 className="text-center text-gray-800 font-medium text-lg flex-grow">
             My Cart
@@ -70,35 +84,75 @@ export default function CartPage() {
           <div className="w-5"></div>
         </div>
       </div>
-      
+
       {isLoading && <Spin size="large" className="my-10 mx-auto" />}
       {error && <p className="text-red-500">Error loading cart data.</p>}
 
-      {Array.isArray(products?.data) && products?.data.length > 0 ? (
+      {keranjangData?.order.length > 0 ? (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {products?.data.map((product: any) => (
-              <Card
-                key={product.id}
-                hoverable
-                cover={
-                  <img
-                    alt={product.product_name}
-                    src={imgProduct(product.product_photo)}
-                    className="h-48 object-cover"
-                  />
-                }
-                className="shadow-md"
-              >
-                <Card.Meta
-                  title={product.product_name}
-                  description={
-                    <div>
-                      <p className="text-gray-500">{product.category.category_name}</p>
-                      <p className="text-gray-800">Rp {product.price}</p>
+          <div className="flex flex-col">
+            <label htmlFor="orderName" className="text-gray-500 text-sm mb-1">
+              order name
+            </label>
+            <input
+              type="text"
+              id="orderName"
+              name="orderName"
+              className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Enter order name"
+            />
+          </div>
+          <div className="space-y-4">
+            {keranjangData?.order.map((order: any) => (
+              <Card key={order?.id} hoverable className="shadow-md rounded-md">
+                {" "}
+                <Row
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    gap: "16px", // Mengatur jarak antar kolom
+                  }}
+                >
+                  <Col>
+                    <img
+                      alt={order?.product?.product_name}
+                      src={imgProduct(order?.product?.product_photo)}
+                      width={80}
+                      height={80}
+                      className="rounded-md"
+                    />
+                  </Col>
+                  <Col style={{ flexGrow: 1, paddingLeft: "8px" }}>
+                    {" "}
+                    {/* Menempelkan ke kolom pertama */}
+                    <p className="font-semibold text-lg">
+                      {order?.product?.product_name}
+                    </p>
+                    <p className="text-gray-800 font-semibold text-lg">
+                      Rp{order?.product?.price}
+                    </p>
+                  </Col>
+                  <Col>
+                    <div className="flex flex-col gap-2">
+                      <Button
+                        type="text"
+                        icon={<DeleteOutlined style={{ color: "red" }} />}
+                        className="text-red-500 text-xl focus:outline-none self-end"
+                        onClick={()=>{deleteOrder(order.id); console.log(order.id)}}
+                      />
+                      {/* Input Number di bawah */}
+                      <div className="flex items-center justify-between">
+                        <InputNumber
+                          min={1}
+                          max={99}
+                          defaultValue={order?.qty || 1}
+                          className="flex justify-end items-center space-x-2"
+                        />
+                      </div>
                     </div>
-                  }
-                />
+                  </Col>
+                </Row>
               </Card>
             ))}
           </div>
@@ -108,7 +162,7 @@ export default function CartPage() {
               <span>Total</span>
               <span>
                 Rp{" "}
-                {products?.data?.reduce(
+                {keranjangData.order?.reduce(
                   (sum: number, item: any) => sum + item.price,
                   0
                 )}

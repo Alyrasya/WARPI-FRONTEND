@@ -7,8 +7,8 @@ const url = {
   editQuantity(id_order:any) {
     return `/edit-quantity/${id_order}`;
   },
-  deleteOrder(id_order:any) {
-    return `/delete/${id_order}`;
+  deleteOrder(id_order: any) {
+    return `/order/delete/${id_order}`; // URL for the delete request
   },
 };
 
@@ -45,16 +45,17 @@ const api = {
   },
 
   // Hapus pesanan
-  async deleteOrder(id_order: any) {
-    try {
-      // Gunakan metode yang benar untuk penghapusan
-      const response = await http.del(url.deleteOrder(id_order));
-      return response;
-    } catch (error) {
-      console.error("Error deleting order:", error);
-      throw error;
+    async deleteOrder(id_order: any) {
+      console.log('ini backend',id_order)
+      try {
+        // Use the DELETE method to make the API request
+        const response = await http.del(url.deleteOrder(id_order));
+        return response; // Handle the response as needed
+      } catch (error) {
+        console.error("Error deleting order:", error);
+        throw error;
+      }
     }
-  },
 };
 
 export const orderRepository = { url, api };

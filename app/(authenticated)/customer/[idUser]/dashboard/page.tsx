@@ -7,6 +7,7 @@ import { productRepository } from "#/repository/product";
 import { categoryRepository } from "#/repository/category";
 import { orderRepository } from "#/repository/order";
 import { parseJwt } from "#/utils/convert";
+import { message } from "antd";
 
 interface Product {
   id: number;
@@ -49,14 +50,14 @@ export default function DashboardPage() {
     categoryData?.data
       ?.filter((category: any) => category.status_category === "active") // Filter kategori aktif
       ?.map((category: any) => category.category_name) || [];
-  const categoryTabs = [ ...categories];
+  const categoryTabs = [...categories];
 
   // Fetch products from API
   const { data: listProducts } = productRepository.hooks.useGetAllProduct({
     page: page,
     page_size: pageSize,
     product_name: searchQuery,
-    category_name: activeTab === "All"? "" : activeTab, // Set category_name menjadi "" saat activeTab "all"
+    category_name: activeTab === "All" ? "" : activeTab, // Set category_name menjadi "" saat activeTab "all"
   });
 
   // Filter produk berdasarkan status_product "active"
@@ -71,7 +72,7 @@ export default function DashboardPage() {
         category: product.category,
       })) || [];
 
-      const totalProducts = listProducts?.total || 4;// Total produk hanya yang aktif
+  const totalProducts = listProducts?.total || 4; // Total produk hanya yang aktif
 
   const handleTabChange = (key: string) => {
     setActiveTab(key);
@@ -89,14 +90,19 @@ export default function DashboardPage() {
   const AddToCart = async (id_product: string[], products?: any) => {
     console.log(id_product); // Debugging log to see the product IDs being passed
     try {
-      // Call the addToCart method from orderRepository
-      const response = await orderRepository.api.addToCart(idUser, { id_product });
-      console.log("Response from adding to cart:", response); // You can handle the response here if needed
+      // Panggil metode addToCart dari orderRepository
+      const response = await orderRepository.api.addToCart(idUser, {
+        id_product,
+      });
+
+      // Tampilkan alert jika berhasil
+      message.success("Produk berhasil ditambahkan ke keranjang!");
     } catch (e) {
       console.error("Error adding to cart:", e);
-      return e; // Return the error for further handling
+      message.error("Terjadi kesalahan saat menambahkan produk ke keranjang.");
+      return e; // Kembalikan error untuk penanganan lebih lanjut
     }
-};
+  };
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
@@ -110,7 +116,6 @@ export default function DashboardPage() {
           onChange={(e) => onSearch(e.target.value)}
         />
       </div>
-
       {/* Tabs for All Categories */}
       <div className="flex justify-center space-x-2 mb-6">
         {categoryTabs.map((tab) => (
@@ -128,11 +133,11 @@ export default function DashboardPage() {
           </div>
         ))}
       </div>
-
       {/* Product Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {product.map((product: any) => (
           <Card
+            style={{ width: "100%" }}
             key={product.key}
             hoverable
             cover={
@@ -148,13 +153,15 @@ export default function DashboardPage() {
               title={product.product_name}
               description={
                 <div>
-                  <p className="text-gray-500">{product.category.category_name}</p>
+                  <p className="text-gray-500">
+                    {product.category.category_name}
+                  </p>
                   <p className="text-#374151">Rp {product.price}</p>
                 </div>
               }
             />
             <Button
-            onClick={() => AddToCart([product.key], product)}
+              onClick={() => AddToCart([product.key], product)}
               className="mt-4 w-full"
               style={{ backgroundColor: "#543310", color: "white" }}
             >
@@ -163,19 +170,19 @@ export default function DashboardPage() {
           </Card>
         ))}
       </div>
-
       {/* Pagination */}
       <div className="flex justify-center mt-6">
-      <Pagination
-              pageSize={pageSize}
-              current={page}
-              total={totalProducts}
-              onChange={(newPage) => {
-                setPage(newPage);
-              }}
-              showSizeChanger={false}
-            />
+        <Pagination
+          pageSize={pageSize}
+          current={page}
+          total={totalProducts}
+          onChange={(newPage) => {
+            setPage(newPage);
+          }}
+          showSizeChanger={false}
+        />
       </div>
-    </div>
-  );
+         
+    </div>
+  );
 }
