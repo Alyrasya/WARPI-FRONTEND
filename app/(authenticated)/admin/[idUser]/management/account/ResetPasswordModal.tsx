@@ -47,7 +47,7 @@ const ResetPasswordModal: React.FC<ResetPasswordModalProps> = ({
         <ExclamationCircleOutlined style={styles.icon} />
         <div>
           <p style={styles.text}>
-            Are you sure you want to reset the password for account ID{' '}
+            Are you sure you want to reset the password for account {' '}
             <strong>{account}</strong>?
           </p>
           <p style={styles.subText}>

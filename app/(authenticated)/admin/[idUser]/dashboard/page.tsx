@@ -2,8 +2,18 @@
 import { Row, Col, Card, Statistic } from 'antd';
 import { DollarOutlined, ShoppingCartOutlined, UserOutlined, FileTextOutlined, BarChartOutlined } from '@ant-design/icons';
 import { dashboardRepository } from '#/repository/dashboard';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function DashboardPage() {
+  const router = useRouter();
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      router.push("/home");
+      return;
+    }
+  });
 
   const { data } = dashboardRepository.hooks.useGetAdminSummary();
   const {

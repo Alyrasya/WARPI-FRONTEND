@@ -38,7 +38,7 @@ const Login = () => {
       } else {
         const token = response.access_token;
         if (token) {
-          const expiryTime = Date.now() + 7 * 24 * 60 * 60 * 1000; // 7 hari
+          const expiryTime = Date.now() + 7 * 24 * 60 * 60 * 1000;
           TokenUtil.setAccessToken(token);
           TokenUtil.persistToken();
           localStorage.setItem("token", token);
@@ -49,7 +49,15 @@ const Login = () => {
           const payload = parseJwt(token);
           const role = payload?.role;
           const id = payload?.id;
+          const status = payload?.status_user;
   
+          if (status === "inactive") {
+            openErrorNotification("Akun Anda tidak aktif. Silakan hubungi admin.");
+            setLoading(false);
+            return;
+          }
+  
+          // Navigasi berdasarkan role
           if (role === "admin") {
             router.push(`/admin/${id}/dashboard`);
           } else if (role === "cashier") {
@@ -58,7 +66,7 @@ const Login = () => {
             router.push(`/customer/${id}/dashboard`);
           } else {
             setTimeout(() => {
-              router.replace(`/login`);
+              router.replace("/login");
             }, 2000);
           }
         } else {
@@ -70,8 +78,7 @@ const Login = () => {
     } finally {
       setLoading(false);
     }
-  };
-  
+  };  
 
   const openSuccessNotification = (message: string) => {
     notification.success({

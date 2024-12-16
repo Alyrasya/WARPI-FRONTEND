@@ -45,6 +45,10 @@ export default function MainLayout({
         setIdUser(payload.id);
       }
     }
+    else {
+      router.push("/home");
+      return;
+    }
 
     if (pathname) {
       // Adjust the URLs to include idUser dynamically
