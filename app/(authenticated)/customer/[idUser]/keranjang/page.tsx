@@ -16,6 +16,7 @@ import {
 import { usePathname } from "next/navigation";
 import useSWR, { mutate } from "swr";
 import { cartRepository } from "#/repository/cart";
+import { action } from "mobx";
 
 export default function CartPage() {
   const pathname = usePathname();
@@ -38,6 +39,7 @@ export default function CartPage() {
     data: keranjangData,
     isValidating: isLoading,
     error,
+    mutate
   } = cartRepository.hooks.getCart(idUser);
   // console.log(keranjangData?.order)
   const imgProduct = (image: string) =>
@@ -48,7 +50,6 @@ export default function CartPage() {
     keranjangData?.order.map((order: any) => console.log(order?.id));
   }
   const deleteOrder = async (id_order: any) => {
-    console.log(id_order, "id_order");
     if (!id_order) {
       message.error("Order ID is invalid.");
       return;
@@ -68,6 +69,20 @@ export default function CartPage() {
       message.error("An error occurred while deleting the order.");
     }
   };
+  const editQuantity = async(id_order : any, action :string)=>{
+    try {
+      const response = await orderRepository.api.editOrderQuantity(id_order,{action : action});
+      mutate();
+      return response;
+    } catch (error) {
+      console.error("Error deleting order:", error);
+      message.error("An error occurred while deleting the order.");
+    }
+    
+  }
+  const totalPrice = keranjangData?.order.reduce((sum:any, order:any) => {
+    return sum + parseFloat(order?.total_price_order);
+  }, 0);
   return (
     <div style={{ padding: "16px" }}>
       <div className="p-4">
@@ -90,18 +105,18 @@ export default function CartPage() {
 
       {keranjangData?.order.length > 0 ? (
         <>
-          <div className="flex flex-col">
+          {/* <div className="flex flex-col">
             <label htmlFor="orderName" className="text-gray-500 text-sm mb-1">
               order name
             </label>
             <input
-              type="text"
+              type="text" 
               id="orderName"
               name="orderName"
               className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Enter order name"
             />
-          </div>
+          </div> */}
           <div className="space-y-4">
             {keranjangData?.order.map((order: any) => (
               <Card key={order?.id} hoverable className="shadow-md rounded-md">
@@ -139,16 +154,36 @@ export default function CartPage() {
                         type="text"
                         icon={<DeleteOutlined style={{ color: "red" }} />}
                         className="text-red-500 text-xl focus:outline-none self-end"
-                        onClick={()=>{deleteOrder(order.id); console.log(order.id)}}
+                        onClick={() => {
+                          deleteOrder(order.id);
+                          console.log(order.id);
+                        }}
                       />
                       {/* Input Number di bawah */}
                       <div className="flex items-center justify-between">
-                        <InputNumber
-                          min={1}
-                          max={99}
-                          defaultValue={order?.qty || 1}
-                          className="flex justify-end items-center space-x-2"
-                        />
+                        <div className="mt-4 flex justify-end items-center space-x-2"></div>
+                        <div className="flex items-center border rounded-lg overflow-hidden w-[100px]">
+                          <Button 
+                          className="flex items-center justify-center w-8 h-8 text-gray-600 hover:bg-gray-200 focus:outline-none"
+                          onClick={()=> editQuantity(order.id,'decrement')}>
+                            -
+                          </Button>
+
+                          {/* Input Field */}
+                          <InputNumber
+                            type="number"
+                            defaultValue={order.qty}
+                            className="w-45 text-center text-lg font-semibold outline-none"
+                            min={1}
+                            style={{ appearance: "textfield" }} // Menghapus spinner default
+                          />
+
+                          <Button 
+                          className="flex items-center justify-center w-8 h-8 text-gray-600 hover:bg-gray-200 focus:outline-none"
+                          onClick={()=> editQuantity(order.id,'increment')}>
+                            +
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   </Col>
@@ -161,11 +196,7 @@ export default function CartPage() {
             <div className="flex justify-between items-center text-lg font-semibold">
               <span>Total</span>
               <span>
-                Rp{" "}
-                {keranjangData.order?.reduce(
-                  (sum: number, item: any) => sum + item.price,
-                  0
-                )}
+                Rp{totalPrice.toFixed(2)}
               </span>
             </div>
             <button className="w-full mt-4 bg-[#543310] text-white py-2 rounded-md">

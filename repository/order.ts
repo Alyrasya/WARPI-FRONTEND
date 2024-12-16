@@ -5,7 +5,7 @@ const url = {
     return `/order/add/${id_user}`;
   },
   editQuantity(id_order:any) {
-    return `/edit-quantity/${id_order}`;
+    return `/order/edit-quantity/${id_order}`;
   },
   deleteOrder(id_order: any) {
     return `/order/delete/${id_order}`; // URL for the delete request
