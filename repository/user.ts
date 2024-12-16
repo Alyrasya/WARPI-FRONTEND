@@ -42,25 +42,23 @@ const hooks = {
 
 const api = {
 	async createCustomer(data: any){
-        const response = await http.post(url.createCustomer()).send(data);
-		return response;
+        return http.post(url.createCustomer()).send(data);
     },
 
 	async createCashier(data: any){
-		const response = await http.post(url.createCashier()).send(data);
-		return response;
+		return http.post(url.createCashier()).send(data);
 	},
 
 	async editPassword(id: string, data: any){
-        return await http.put(url.editPassword(id)).send(data);
+        return http.put(url.editPassword(id)).send(data);
     },
 
 	async resetPassword(id: string) {
-		return await http.put(url.resetPassword(id));
+		return http.put(url.resetPassword(id));
 	},
 	
 	async editStatusCashier(id: string, data: any){
-        return await http.put(url.editStatusCashier(id)).send(data);
+        return http.put(url.editStatusCashier(id)).send(data);
     },
 }
 

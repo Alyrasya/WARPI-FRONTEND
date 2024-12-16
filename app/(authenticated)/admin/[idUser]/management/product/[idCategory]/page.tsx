@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Input, Button, Table, Space, notification, Pagination } from "antd";
 import { SearchOutlined, EditOutlined, EyeOutlined, PlusCircleOutlined, ArrowLeftOutlined } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
@@ -57,6 +57,14 @@ const ManageMenuProduct = () => {
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [detailProductData, setDetailProductData] = useState<any | null>();  
 
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      router.push("/home");
+      return;
+    }
+  });
+
   const { data: listProduct } =
     categoryRepository.hooks.useGetProductsByCategory(id || "", {
       page,
@@ -113,13 +121,11 @@ const ManageMenuProduct = () => {
             product_name: searchInput,
           })
         );
-        handleCreateCloseModal();
       }
     } catch (error) {
-      console.error("Error create product:", error);
       openErrorNotification("Create product gagal!");
-      handleCreateCloseModal();
     }
+    handleCreateCloseModal();
   };
 
   const handleEditProduct = async ({
@@ -159,13 +165,11 @@ const ManageMenuProduct = () => {
             product_name: searchInput,
           })
         );
-        handleEditCloseModal();
       }
     } catch (error) {
-      console.error("Error edit product:", error);
       openErrorNotification("Edit product gagal!");
-      handleEditCloseModal();
     }
+    handleEditCloseModal();
   }; 
 
   const handleViewDetailProduct = (id: string) => {
@@ -315,9 +319,9 @@ const ManageMenuProduct = () => {
         />
         <Button
           type="primary"
-          icon={<PlusCircleOutlined style={{ fontSize: "20px" }} />}
+          icon={<PlusCircleOutlined style={{ fontWeight: "bold", fontSize: "20px" }} />}
           style={{
-            backgroundColor: "#000000",
+            backgroundColor: '#543310',
             borderRadius: "10px",
             padding: "0 16px",
             height: "40px",

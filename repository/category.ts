@@ -44,13 +44,11 @@ const hooks = {
 
 const api = {
   async createCategory(data: any){
-    const response = await http.post(url.createCategory()).send(data);
-    return response;
+    return http.post(url.createCategory()).send(data);
   },
 
   async updateCategory(id: string, data: any){
-    const response = await http.put(url.updateCategory(id)).send(data);
-    return response;
+    return http.put(url.updateCategory(id)).send(data);
   }
 }
 

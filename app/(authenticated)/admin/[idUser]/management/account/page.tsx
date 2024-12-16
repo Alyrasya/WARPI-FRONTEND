@@ -1,11 +1,10 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Input, Button, Table, Space, notification, Pagination } from "antd";
 import {
   SearchOutlined,
   PlusCircleOutlined,
   LockFilled,
-  DeleteOutlined,
   EditOutlined,
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
@@ -14,6 +13,7 @@ import CreateAccountModal from "./CreateAccountModal";
 import { mutate } from "swr";
 import ResetPasswordModal from "./ResetPasswordModal";
 import EditAccountModal from "./EditAccountModal";
+import { useRouter } from "next/navigation";
 
 interface DataType {
   key: string;
@@ -25,6 +25,7 @@ interface DataType {
 }
 
 const ManageAccountContent = () => {
+  const router = useRouter();
   const [searchInputBorderColor, setSearchInputBorderColor] =
     useState("transparent");
   const [searchInputBoxShadow, setSearchInputBoxShadow] = useState("none");
@@ -54,6 +55,14 @@ const ManageAccountContent = () => {
     setIsEditModalOpen(true);
   };
   const handleEditCloseModal = () => setIsEditModalOpen(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      router.push("/home");
+      return;
+    }
+  });
 
   const { data: listCashier } = userRepository.hooks.useGetAllCashier({
     page: page,
@@ -92,11 +101,11 @@ const ManageAccountContent = () => {
             usernameOrEmail: searchInput,
           })
         );
-        setIsCreateModalOpen(false);
       }
     } catch (error) {
       openErrorNotification("Create account cashier gagal!");
     }
+    setIsCreateModalOpen(false);
   };
 
   const handleResetPassword = async () => {
@@ -112,13 +121,12 @@ const ManageAccountContent = () => {
             })
           );
           openSuccessNotification("Reset password kasir barhasil!");
-          handleResetCloseModal();
         }
       } catch (error) {
         openErrorNotification("Password sudah default, reset password gagal!");
-        handleResetCloseModal();
       }
     }
+    handleResetCloseModal();
   };
 
   const handleEditCashier = async (updatedData: { status_user?: string }) => {
@@ -258,9 +266,9 @@ const ManageAccountContent = () => {
         />
         <Button
           type="primary"
-          icon={<PlusCircleOutlined style={{ fontSize: "20px" }} />}
+          icon={<PlusCircleOutlined style={{ fontWeight: "bold", fontSize: "20px" }} />}
           style={{
-            backgroundColor: "#000000",
+            backgroundColor: '#543310',
             borderRadius: "10px",
             padding: "0 16px",
             height: "40px",
@@ -321,7 +329,7 @@ const ManageAccountContent = () => {
         isOpen={isResetModalOpen}
         onClose={handleResetCloseModal}
         onReset={handleResetPassword}
-        account={selectedUser?.key}
+        account={selectedUser?.email}
       />
 
       {editAccountData && (

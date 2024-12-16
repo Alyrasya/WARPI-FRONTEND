@@ -74,11 +74,11 @@ const ManageMenuCategory = () => {
       if (newCashier){
         openSuccessNotification('Create category berhasil!');
         mutate(categoryRepository.url.getAllCategory({ page, page_size: pageSize, category_name: searchInput }));
-        setIsCreateModalOpen(false);
       }
     } catch (error) {
       openErrorNotification('Create category gagal!');
     }
+    setIsCreateModalOpen(false);
   }; 
 
   const handleEditCategory = async (updatedData: { category_name?: string; status_category?: string }) => {
@@ -88,11 +88,11 @@ const ManageMenuCategory = () => {
       if (response) {
         openSuccessNotification('Edit category berhasil!');
         mutate(categoryRepository.url.getAllCategory({ page, page_size: pageSize, category_name: searchInput }));
-        setIsEditModalOpen(false);
       }
     } catch (error) {
       openErrorNotification('Edit category gagal!');
     }
+    setIsEditModalOpen(false);
   };
   
   const handleViewProduct = (id: string) => {
@@ -193,9 +193,9 @@ const ManageMenuCategory = () => {
         />
         <Button
           type="primary"
-          icon={<PlusCircleOutlined style={{ fontSize: '20px' }} />}
+          icon={<PlusCircleOutlined style={{ fontWeight: "bold", fontSize: '20px' }} />}
           style={{
-            backgroundColor: '#000000',
+            backgroundColor: '#543310',
             borderRadius: '10px',
             padding: '0 16px',
             height: '40px',

@@ -40,13 +40,11 @@
 
  const api = {
     async createProduct(data: any){
-        const response = await http.post(url.createProduct()).send(data);
-        return response;
+        return http.post(url.createProduct()).send(data);
     },
 
     async updateProduct(id: string, data: any){
-        const response = await http.put(url.updateProduct(id)).send(data);
-        return response;
+        return http.put(url.updateProduct(id)).send(data);
     }
 
     
