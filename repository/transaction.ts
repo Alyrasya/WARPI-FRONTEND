@@ -1,9 +1,13 @@
 import { http } from '#/utils/http';
+import useSWR from 'swr';
 
 const url = {
   createTransaction(id_user: string) {
     return `/transaction/create/${id_user}`;
   },
+  getAllTransaction(id_user : any){
+    return `/transaction/transaction/${id_user}`
+  }
 };
 
 const api = {
@@ -18,5 +22,10 @@ const api = {
     }
   },
 };
+const hooks = {
+  getAllTransaction(id_user:any){
+      return useSWR(url.getAllTransaction(id_user),http.fetcher)
+  }
+}
 
-export const transactionRepository = { url, api };
+export const transactionRepository = { url, api,hooks};

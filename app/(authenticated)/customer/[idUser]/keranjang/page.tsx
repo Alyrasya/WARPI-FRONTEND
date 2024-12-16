@@ -17,6 +17,7 @@ import { usePathname } from "next/navigation";
 import useSWR, { mutate } from "swr";
 import { cartRepository } from "#/repository/cart";
 import { action } from "mobx";
+import { transactionRepository } from "#/repository/transaction";
 
 export default function CartPage() {
   const pathname = usePathname();
@@ -79,6 +80,16 @@ export default function CartPage() {
       message.error("An error occurred while deleting the order.");
     }
     
+  }
+  const createTransaction = async (id_user:any )=>{
+    try {
+      const response = await transactionRepository.api.createTransaction(id_user);
+      mutate();
+      return response;
+    } catch (error) {
+      console.error("Error creating transaction:", error);
+      
+    }
   }
   const totalPrice = keranjangData?.order.reduce((sum:any, order:any) => {
     return sum + parseFloat(order?.total_price_order);
@@ -199,9 +210,12 @@ export default function CartPage() {
                 Rp{totalPrice.toFixed(2)}
               </span>
             </div>
-            <button className="w-full mt-4 bg-[#543310] text-white py-2 rounded-md">
+
+            <Button
+            onClick={()=> createTransaction(idUser)}
+             className="w-full mt-4 bg-[#543310] text-white py-2 rounded-md" >
               Payment
-            </button>
+            </Button>
           </div>
         </>
       ) : (
