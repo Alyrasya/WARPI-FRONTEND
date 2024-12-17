@@ -1,5 +1,5 @@
 "use client";
-import { Row, Col, Card, Statistic } from "antd";
+import { Row, Col, Card, Statistic, Modal, Button } from "antd";
 import {
   DollarOutlined,
   ShoppingCartOutlined,
@@ -11,6 +11,7 @@ import { transactionRepository } from "#/repository/transaction";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { parseJwt } from "#/utils/convert";
+import DetailTransactionModal from "#/app/(authenticated)/admin/[idUser]/management/report/DetailTransactionModal";
 
 export default function historyPage() {
   const pathname = usePathname();
@@ -34,6 +35,14 @@ export default function historyPage() {
     error,
     mutate,
   } = transactionRepository.hooks.getAllTransaction(idUser);
+
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [detailTransactionData, setDetailTransactionData] = useState<any | null>();
+
+  const handleViewDetailTransaction = (id: string) => {
+    setDetailTransactionData(id);
+    setIsDetailModalOpen(true);
+  };
 
   return (
     <>
@@ -70,7 +79,7 @@ export default function historyPage() {
                     ? "Unpaid"
                     : index.payment_status === "success"
                     ? "Success"
-                    : "Unknown"}
+                    : "pending"}
                 </span>
 
                 {/* Konten Kiri: Icon dan Informasi */}
@@ -86,9 +95,11 @@ export default function historyPage() {
                     <div className="flex justify-between items-center">
                       <p className="text-gray-500 mb-4">{index.createdAt}</p>
 
-                      <a href="" className="text-gray-400 text-xl">
+                      <Button className="text-gray-400 text-xl"
+                      onClick={() => handleViewDetailTransaction(index.id)}>
+                        
                         &gt;
-                      </a>
+                      </Button>
                     </div>
                   </div>
                 </div>
@@ -97,6 +108,13 @@ export default function historyPage() {
           </div>
         </div>
       </div>
+      {detailTransactionData && (
+        <DetailTransactionModal
+          isOpen={isDetailModalOpen}
+          onClose={() => setIsDetailModalOpen(false)}
+          id={detailTransactionData}
+        />
+      )}
     </>
   );
 }

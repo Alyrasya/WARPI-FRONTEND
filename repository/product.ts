@@ -10,7 +10,7 @@
  }
 
  const url = {
-    getAllProduct(params: GetAllProduct){
+    getAllProduct(params: GetAllProduct){   
         return `/product/getAll?${qs.stringify(params)}`;
     },
 

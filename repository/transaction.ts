@@ -6,7 +6,7 @@ const url = {
     return `/transaction/create/${id_user}`;
   },
   getAllTransaction(id_user : any){
-    return `/transaction/transaction/${id_user}`
+    return `/transaction/transaction/${id_user}`;
   }
 };
 
@@ -28,4 +28,4 @@ const hooks = {
   }
 }
 
-export const transactionRepository = { url, api,hooks};
+export const transactionRepository = { url, api,hooks};
