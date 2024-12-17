@@ -35,7 +35,8 @@ interface DataType {
 
 const ManageSalesReport = () => {
   const router = useRouter();
-  const [searchInputBorderColor, setSearchInputBorderColor] =useState("transparent");
+  const [searchInputBorderColor, setSearchInputBorderColor] =
+    useState("transparent");
   const [searchInputBoxShadow, setSearchInputBoxShadow] = useState("none");
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("");
   const [dateRange, setDateRange] = useState<
@@ -48,7 +49,7 @@ const ManageSalesReport = () => {
 
   // Modal Detail
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
-  const [detailTransactionData, setDetailTransactionData] = useState<any | null>();  
+  const [detailTransactionData, setDetailTransactionData] = useState<any | null>();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -58,29 +59,73 @@ const ManageSalesReport = () => {
     }
   });
 
-  const { data: listTransaction } = transactionRepository.hooks.useGetAllTransaction({
-    page: page,
-    page_size: pageSize,
-    name_order: searchInput,
-    method_name: selectedPaymentMethod,
-    start_date: dateRange ? (dateRange[0]?.toISOString() ?? '') : '',
-    end_date: dateRange ? (dateRange[1]?.toISOString() ?? '') : '',
-  });
+  const { data: listTransaction } =
+    transactionRepository.hooks.useGetAllTransaction({
+      page: page,
+      page_size: pageSize,
+      name_order: searchInput,
+      method_name: selectedPaymentMethod,
+      start_date: dateRange ? dateRange[0]?.toISOString() ?? "" : "",
+      end_date: dateRange ? dateRange[1]?.toISOString() ?? "" : "",
+    });
 
-  const transactionData: DataType[] = listTransaction?.data?.map((transaction: any, index: number) => ({
-    key: transaction.id,
-    no: (page - 1) * pageSize + index + 1,
-    no_order: transaction.no_order,
-    name_order: transaction.name_order,
-    payment_method: transaction.paymentMethod.method_name,
-    total_price_transaction: Number(transaction.total_price_transaction),
-    status_payment: transaction.payment_status,
-  })) || [];
+  const transactionData: DataType[] =
+    listTransaction?.data?.map((transaction: any, index: number) => ({
+      key: transaction.id,
+      no: (page - 1) * pageSize + index + 1,
+      no_order: transaction.no_order,
+      name_order: transaction.name_order,
+      payment_method: transaction.paymentMethod.method_name,
+      total_price_transaction: Number(transaction.total_price_transaction),
+      status_payment: transaction.payment_status,
+    })) || [];
 
   const handleViewDetailTransaction = (id: string) => {
     setDetailTransactionData(id);
     setIsDetailModalOpen(true);
   };
+
+  // const handleExport = async () => {
+  //   try {
+  //     const params = {
+  //       page: page,
+  //       page_size: pageSize,
+  //       name_order: searchInput,
+  //       method_name: selectedPaymentMethod,
+  //       start_date: dateRange ? dateRange[0]?.toISOString() ?? "" : "",
+  //       end_date: dateRange ? dateRange[1]?.toISOString() ?? "" : "",
+  //     };
+  
+  //     console.log("Export Params:", params);
+  
+  //     // Memanggil API export dari repository
+  //     const response = transactionRepository.api.exportExcel(params);
+  //     console.log("Export Params:", response);
+      
+  //     if (!response) {
+  //       throw new Error("Gagal mengekspor file");
+  //     }
+  
+  //     // Membuat link untuk mengunduh file
+  //     const url = 'http://localhost:3222/public/sales_report/transaction_report.xlsx';
+  //     const link = document.createElement("a");
+  //     link.href = url;
+  
+  //     // Menentukan nama file (sesuai kebutuhan)
+  //     link.setAttribute("download", "transaction_report.xlsx");
+  //     document.body.appendChild(link);
+  //     link.click();
+  
+  //     // Membersihkan URL Object
+  //     window.URL.revokeObjectURL(url);
+  
+  //     // Notifikasi sukses
+  //     openSuccessNotification("File berhasil diekspor!");
+  //   } catch (error) {
+  //     console.error("Export error:", error);
+  //     openErrorNotification("Terjadi kesalahan saat mengekspor file.");
+  //   }
+  // };            
 
   // Success notification
   const openSuccessNotification = (message: string) => {
@@ -159,12 +204,12 @@ const ManageSalesReport = () => {
       key: "action",
       align: "center",
       width: "10%",
-      render: (_: unknown, record: DataType) => (
+      render: (value) => (
         <Space size="middle">
           <Button
             icon={<EyeOutlined style={{ color: "#543310" }} />}
             type="link"
-            onClick={() => handleViewDetailTransaction(record.key)}
+            onClick={() => handleViewDetailTransaction(value.key)}
           />
         </Space>
       ),
@@ -230,21 +275,30 @@ const ManageSalesReport = () => {
             <Button style={{ minWidth: "150px" }}>
               {selectedPaymentMethod || "Select Payment Method"}
             </Button>
-          </Dropdown> 
+          </Dropdown>
         </div>
         <Button
           type="primary"
-          icon={<DownloadOutlined style={{ fontWeight: "bold", fontSize: '20px' }}/>}
+          icon={
+            <DownloadOutlined
+              style={{ fontWeight: "bold", fontSize: "20px" }}
+            />
+          }
           style={{
-            backgroundColor: '#543310',
-            borderRadius: '10px',
-            padding: '0 16px',
-            height: '40px',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-            width: '130px',
+            backgroundColor: "#543310",
+            borderRadius: "10px",
+            padding: "0 16px",
+            height: "40px",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+            width: "130px",
           }}
+          // onClick={handleExport}
         >
-          <span style={{ fontWeight: 'bold', color: '#FFFFFF', fontSize: '16px' }}>Export</span>
+          <span
+            style={{ fontWeight: "bold", color: "#FFFFFF", fontSize: "16px" }}
+          >
+            Export
+          </span>
         </Button>
       </div>
 
@@ -281,11 +335,13 @@ const ManageSalesReport = () => {
           </div>
         )}
       />
-      <DetailTransactionModal
-        isOpen={isDetailModalOpen}
-        onClose={() => setIsDetailModalOpen(false)}
-        id={detailTransactionData}
-      />
+      {detailTransactionData && (
+        <DetailTransactionModal
+          isOpen={isDetailModalOpen}
+          onClose={() => setIsDetailModalOpen(false)}
+          id={detailTransactionData}
+        />
+      )}
     </div>
   );
 };

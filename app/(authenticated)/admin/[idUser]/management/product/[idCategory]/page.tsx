@@ -1,7 +1,13 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { Input, Button, Table, Space, notification, Pagination } from "antd";
-import { SearchOutlined, EditOutlined, EyeOutlined, PlusCircleOutlined, ArrowLeftOutlined } from "@ant-design/icons";
+import {
+  SearchOutlined,
+  EditOutlined,
+  EyeOutlined,
+  PlusCircleOutlined,
+  ArrowLeftOutlined,
+} from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import { usePathname, useRouter } from "next/navigation";
 import { categoryRepository } from "#/repository/category";
@@ -20,7 +26,7 @@ interface DataType {
   category_name: string;
   price: number;
   stock: number;
-  description?: string;
+  description: string;
   status_product: string;
 }
 
@@ -30,10 +36,13 @@ const ManageMenuProduct = () => {
   const id = pathname?.split("/")[5];
 
   const imgProduct = (image: string) =>
-    `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3222'}/category/upload/${image}`;    
+    `${
+      process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3222"
+    }/category/upload/${image}`;
 
-  const [searchInputBorderColor, setSearchInputBorderColor] = useState('transparent');
-  const [searchInputBoxShadow, setSearchInputBoxShadow] = useState('none');
+  const [searchInputBorderColor, setSearchInputBorderColor] =
+    useState("transparent");
+  const [searchInputBoxShadow, setSearchInputBoxShadow] = useState("none");
   const [searchInput, setSearchInput] = useState("");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
@@ -55,7 +64,7 @@ const ManageMenuProduct = () => {
 
   // Modal Detail
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
-  const [detailProductData, setDetailProductData] = useState<any | null>();  
+  const [detailProductData, setDetailProductData] = useState<any | null>();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -70,9 +79,9 @@ const ManageMenuProduct = () => {
       page,
       page_size: pageSize,
       product_name: searchInput,
-  });
+    });
 
-  const productData : DataType[] =
+  const productData: DataType[] =
     listProduct?.data?.map((product: any, index: number) => ({
       key: product.id,
       no: (page - 1) * pageSize + index + 1,
@@ -82,7 +91,7 @@ const ManageMenuProduct = () => {
       price: product.price,
       stock: product.stock,
       status_product: product.status_product,
-      description: product.description
+      description: product.description,
     })) || [];
 
   const handleBack = () => {
@@ -109,9 +118,9 @@ const ManageMenuProduct = () => {
       if (product_photo) {
         formData.append("product_photo", product_photo);
       }
-  
+
       const newProduct = await productRepository.api.createProduct(formData);
-  
+
       if (newProduct) {
         openSuccessNotification("Create product berhasil!");
         mutate(
@@ -150,12 +159,12 @@ const ManageMenuProduct = () => {
       if (product_photo) {
         formData.append("product_photo", product_photo);
       }
-  
+
       const updatedProduct = await productRepository.api.updateProduct(
         editProductData.key,
         formData
       );
-  
+
       if (updatedProduct) {
         openSuccessNotification("Edit product berhasil!");
         mutate(
@@ -170,12 +179,12 @@ const ManageMenuProduct = () => {
       openErrorNotification("Edit product gagal!");
     }
     handleEditCloseModal();
-  }; 
+  };
 
   const handleViewDetailProduct = (id: string) => {
-    setDetailProductData(id);
     setIsDetailModalOpen(true);
-  };  
+    setDetailProductData(id);
+  };
 
   const openSuccessNotification = (message: string) => {
     notification.success({
@@ -268,12 +277,12 @@ const ManageMenuProduct = () => {
       render: (value) => (
         <Space size="middle">
           <Button
-            icon={<EditOutlined style={{color: '#543310'}}/>}
+            icon={<EditOutlined style={{ color: "#543310" }} />}
             type="link"
-            onClick={() => handleEditOpenModal(value)} 
+            onClick={() => handleEditOpenModal(value)}
           />
           <Button
-            icon={<EyeOutlined style={{color: '#543310'}}/>}
+            icon={<EyeOutlined style={{ color: "#543310" }} />}
             type="link"
             onClick={() => handleViewDetailProduct(value.key)}
           />
@@ -286,42 +295,56 @@ const ManageMenuProduct = () => {
     <div style={{ padding: "15px", borderRadius: "8px" }}>
       <Button
         type="link"
-        icon={<ArrowLeftOutlined style={{ fontSize: "18px", fontWeight: "bold", color: '#543310' }} />}
-        style={{ marginBottom: "10px", fontWeight: "bold", color: '#543310' }}
+        icon={
+          <ArrowLeftOutlined
+            style={{ fontSize: "18px", fontWeight: "bold", color: "#543310" }}
+          />
+        }
+        style={{ marginBottom: "10px", fontWeight: "bold", color: "#543310" }}
         onClick={handleBack}
       >
         Back
       </Button>
-      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "16px" }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          marginBottom: "16px",
+        }}
+      >
         <Input
           placeholder="Search product name"
           prefix={<SearchOutlined />}
           style={{
-            width: '300px',
-            borderRadius: '8px',
-            padding: '0px 16px',
-            height: '40px',
+            width: "300px",
+            borderRadius: "8px",
+            padding: "0px 16px",
+            height: "40px",
             borderColor: searchInputBorderColor,
             boxShadow: searchInputBoxShadow,
             outline: `1px solid rgba(0, 0, 0, 0.1)`,
-            transition: 'border-color 0.3s ease, box-shadow 0.3s ease',
+            transition: "border-color 0.3s ease, box-shadow 0.3s ease",
           }}
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
           onMouseEnter={() => {
-            setSearchInputBorderColor('#543310');
-            setSearchInputBoxShadow('0 4px 12px rgba(84, 51, 16, 0.5)');
+            setSearchInputBorderColor("#543310");
+            setSearchInputBoxShadow("0 4px 12px rgba(84, 51, 16, 0.5)");
           }}
           onMouseLeave={() => {
-            setSearchInputBorderColor('transparent');
-            setSearchInputBoxShadow('none');
+            setSearchInputBorderColor("transparent");
+            setSearchInputBoxShadow("none");
           }}
         />
         <Button
           type="primary"
-          icon={<PlusCircleOutlined style={{ fontWeight: "bold", fontSize: "20px" }} />}
+          icon={
+            <PlusCircleOutlined
+              style={{ fontWeight: "bold", fontSize: "20px" }}
+            />
+          }
           style={{
-            backgroundColor: '#543310',
+            backgroundColor: "#543310",
             borderRadius: "10px",
             padding: "0 16px",
             height: "40px",
@@ -330,7 +353,9 @@ const ManageMenuProduct = () => {
           }}
           onClick={handleCreateOpenModal}
         >
-          <span style={{ fontWeight: "bold", color: "#FFFFFF", fontSize: "16px" }}>
+          <span
+            style={{ fontWeight: "bold", color: "#FFFFFF", fontSize: "16px" }}
+          >
             Product
           </span>
         </Button>
@@ -347,7 +372,10 @@ const ManageMenuProduct = () => {
         components={{
           header: {
             cell: (props: React.HTMLProps<HTMLTableCellElement>) => (
-              <th {...props} style={{ backgroundColor: "#543310", color: "white" }} />
+              <th
+                {...props}
+                style={{ backgroundColor: "#543310", color: "white" }}
+              />
             ),
           },
         }}
@@ -364,10 +392,10 @@ const ManageMenuProduct = () => {
         )}
       />
 
-      <CreateProductModal 
-        open={isCreateModalOpen} 
-        onClose={handleCreateCloseModal} 
-        onSubmit={handleCreateProduct} 
+      <CreateProductModal
+        open={isCreateModalOpen}
+        onClose={handleCreateCloseModal}
+        onSubmit={handleCreateProduct}
       />
 
       {editProductData && (
@@ -379,11 +407,13 @@ const ManageMenuProduct = () => {
         />
       )}
 
-      <DetailProductModal
-        isOpen={isDetailModalOpen}
-        onClose={() => setIsDetailModalOpen(false)}
-        id={detailProductData}
-      />
+      {detailProductData && (
+        <DetailProductModal
+          isOpen={isDetailModalOpen}
+          onClose={() => setIsDetailModalOpen(false)}
+          id={detailProductData}
+        />
+      )}
     </div>
   );
 };

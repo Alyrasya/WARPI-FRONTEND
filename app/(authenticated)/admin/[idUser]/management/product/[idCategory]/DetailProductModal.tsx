@@ -9,16 +9,13 @@ interface DetailProductModalProps {
   id: string | null;
 }
 
-
 const DetailProductModal = ({
   isOpen,
   onClose,
   id,
 }: DetailProductModalProps) => {
-  const { data: product } = productRepository.hooks.useGetByIdProduct(id || "");
   const [detailProductData, setDetailProductData] = useState<any | null>(null);
-
-  // Mengatur data produk saat data tersedia
+  const { data: product } = productRepository.hooks.useGetByIdProduct(id || "");
   useEffect(() => {
     if (product) {
       setDetailProductData(product);
