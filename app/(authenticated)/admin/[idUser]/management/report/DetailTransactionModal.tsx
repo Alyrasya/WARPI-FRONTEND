@@ -33,7 +33,7 @@ interface TransactionDetail {
 
 interface DetailTransactionModalProps {
   isOpen: boolean;
-  id: string | null;
+  id: string;
   onClose: () => void;
 }
 
@@ -42,11 +42,10 @@ const ModalDetailTransaction: React.FC<DetailTransactionModalProps> = ({
   id,
   onClose,
 }) => {
-  const { data: transaction } = transactionRepository.hooks.useGetByIdTransaction(
-    id || ""
-  );
   const [transactionDetail, setTransactionDetail] =
     useState<TransactionDetail | null>(null);
+  
+  const { data: transaction } = transactionRepository.hooks.useGetByIdTransaction(id);
 
   useEffect(() => {
     if (transaction) {
@@ -155,7 +154,7 @@ const ModalDetailTransaction: React.FC<DetailTransactionModalProps> = ({
           {/* Order Details */}
           <Table
             columns={columns}
-            dataSource={transactionDetail.order.map((order) => ({
+            dataSource={transactionDetail.order.map((order: any) => ({
               key: order.id,
               ...order,
             }))}
