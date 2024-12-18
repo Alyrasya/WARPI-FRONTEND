@@ -37,7 +37,9 @@ export default function historyPage() {
   } = transactionRepository.hooks.getAllTransaction(idUser);
 
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
-  const [detailTransactionData, setDetailTransactionData] = useState<any | null>();
+  const [detailTransactionData, setDetailTransactionData] = useState<
+    any | null
+  >();
 
   const handleViewDetailTransaction = (id: string) => {
     setDetailTransactionData(id);
@@ -95,9 +97,16 @@ export default function historyPage() {
                     <div className="flex justify-between items-center">
                       <p className="text-gray-500 mb-4">{index.createdAt}</p>
 
-                      <Button className="text-gray-400 text-xl"
-                      onClick={() => handleViewDetailTransaction(index.id)}>
-                        
+                      <Button
+                        className="text-gray-400 text-xl"
+                        onClick={() => {
+                          console.log(
+                            "Button clicked with Transaction ID:",
+                            index.id
+                          ); // Log ID ke konsol
+                          handleViewDetailTransaction(index.id); // Panggil fungsi utama
+                        }}
+                      >
                         &gt;
                       </Button>
                     </div>

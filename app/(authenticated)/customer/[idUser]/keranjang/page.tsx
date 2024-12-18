@@ -62,6 +62,7 @@ export default function CartPage() {
 
       if (response) {
         message.success("Order deleted successfully!");
+        mutate();
       } else {
         message.error("Failed to delete order.");
       }
@@ -73,7 +74,13 @@ export default function CartPage() {
   const editQuantity = async(id_order : any, action :string)=>{
     try {
       const response = await orderRepository.api.editOrderQuantity(id_order,{action : action});
-      mutate();
+      if (response) {
+        message.success(`Quantity ${action === "increment" ? "increased" : "decreased"} successfully!`);
+        mutate(); // Refresh data otomatis setelah perubahan quantity
+      } else {
+        message.error("Failed to update quantity.");
+      }
+  
       return response;
     } catch (error) {
       console.error("Error deleting order:", error);
