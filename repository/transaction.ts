@@ -11,15 +11,6 @@ export interface GetAllTransaction {
   end_date: string;
 }
 
-export interface ExportTransaction {
-  page: number;
-  page_size: number;
-  name_order: string;
-  method_name: string;
-  start_date: string;
-  end_date: string;
-}
-
 const url = {
   getAllTransaction(params: GetAllTransaction) {
     return `/transaction/getAll?${qs.stringify(params)}`;
@@ -27,10 +18,6 @@ const url = {
 
   getByIdTransaction(id: string) {
     return `/transaction/${id}/getById`;
-  },
-
-  exportTransactionToExcel(params: ExportTransaction) {
-    return `/transaction/export?${qs.stringify(params)}`;
   },
 };
 
@@ -41,11 +28,11 @@ const hooks = {
 
   useGetByIdTransaction(id: string) {
     return useSWR(url.getByIdTransaction(id), http.fetcher);
-  },
+  }
 };
 
 const api = {
-};
+};  
 
 export const transactionRepository = {
   url,

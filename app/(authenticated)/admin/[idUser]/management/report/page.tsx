@@ -21,6 +21,7 @@ import { Dayjs } from "dayjs";
 import { transactionRepository } from "#/repository/transaction";
 import DetailTransactionModal from "./DetailTransactionModal";
 import { useRouter } from "next/navigation";
+import * as XLSX from 'xlsx';
 
 const { RangePicker } = DatePicker;
 
@@ -49,7 +50,9 @@ const ManageSalesReport = () => {
 
   // Modal Detail
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
-  const [detailTransactionData, setDetailTransactionData] = useState<any | null>();
+  const [detailTransactionData, setDetailTransactionData] = useState<
+    any | null
+  >();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -85,265 +88,273 @@ const ManageSalesReport = () => {
     setIsDetailModalOpen(true);
   };
 
-  // const handleExport = async () => {
-  //   try {
-  //     const params = {
-  //       page: page,
-  //       page_size: pageSize,
-  //       name_order: searchInput,
-  //       method_name: selectedPaymentMethod,
-  //       start_date: dateRange ? dateRange[0]?.toISOString() ?? "" : "",
-  //       end_date: dateRange ? dateRange[1]?.toISOString() ?? "" : "",
-  //     };
+  const handleExport = async () => {
+    try {
+      // Ambil data transaksi dari API
+      const dataToExport = listTransaction?.data?.map((transaction: any) => ({
+        'ID Transaction': transaction.id,
+        'No Order': transaction.no_order,
+        'Name Order': transaction.name_order,
+        'Payment Method': transaction.paymentMethod.method_name,
+        'Total Transaction': transaction.total_price_transaction,
+        'Cash': transaction.cash,
+        'Change Money': transaction.change_money,
+        'Payment Status': transaction.payment_status,
+        'Created At': transaction.createdAt,
+      }));
   
-  //     console.log("Export Params:", params);
+      // Jika data kosong, tampilkan pesan kesalahan
+      if (!dataToExport || dataToExport.length === 0) {
+        openErrorNotification('No data available to export.');
+        return;
+      }
   
-  //     // Memanggil API export dari repository
-  //     const response = transactionRepository.api.exportExcel(params);
-  //     console.log("Export Params:", response);
-      
-  //     if (!response) {
-  //       throw new Error("Gagal mengekspor file");
-  //     }
+      // Konversi data menjadi worksheet
+      const ws = XLSX.utils.json_to_sheet(dataToExport);
   
-  //     // Membuat link untuk mengunduh file
-  //     const url = 'http://localhost:3222/public/sales_report/transaction_report.xlsx';
-  //     const link = document.createElement("a");
-  //     link.href = url;
+      // Mengatur ukuran kolom berdasarkan panjang data
+      const columnWidths = Object.keys(dataToExport[0]).map((key) => {
+        const columnMaxLength = Math.max(
+          ...dataToExport.map((item: any) => String(item[key]).length),
+          key.length
+        );
+        return { wch: columnMaxLength }; // wch = width character
+      });
   
-  //     // Menentukan nama file (sesuai kebutuhan)
-  //     link.setAttribute("download", "transaction_report.xlsx");
-  //     document.body.appendChild(link);
-  //     link.click();
+      // Set ukuran kolom di worksheet
+      ws['!cols'] = columnWidths;
   
-  //     // Membersihkan URL Object
-  //     window.URL.revokeObjectURL(url);
+      // Membuat workbook
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Transaction Report');
   
-  //     // Notifikasi sukses
-  //     openSuccessNotification("File berhasil diekspor!");
-  //   } catch (error) {
-  //     console.error("Export error:", error);
-  //     openErrorNotification("Terjadi kesalahan saat mengekspor file.");
-  //   }
-  // };            
+      // Generate file Excel dan memulai unduhan
+      XLSX.writeFile(wb, 'Transaction_Report.xlsx');
+  
+      // Tampilkan notifikasi sukses
+      openSuccessNotification('Report successfully exported!');
+    } catch (error) {
+      openErrorNotification('Failed to export report. Please try again.');
+    }
+  };    
 
-  // Success notification
-  const openSuccessNotification = (message: string) => {
-    notification.success({
-      message: "Success",
-      description: message,
-      placement: "top",
-      duration: 1.3,
-    });
-  };
+    // Success notification
+    const openSuccessNotification = (message: string) => {
+      notification.success({
+        message: "Success",
+        description: message,
+        placement: "top",
+        duration: 1.3,
+      });
+    };
 
-  // Error notification
-  const openErrorNotification = (message: string) => {
-    notification.error({
-      message: "Error",
-      description: message,
-      placement: "top",
-      duration: 1.3,
-    });
-  };
+    // Error notification
+    const openErrorNotification = (message: string) => {
+      notification.error({
+        message: "Error",
+        description: message,
+        placement: "top",
+        duration: 1.3,
+      });
+    };
 
-  const paymentMethods = (
-    <Menu onClick={(e) => setSelectedPaymentMethod(e.key)}>
-      <Menu.Item key="">ALL</Menu.Item>
-      <Menu.Item key="qris">QRIS</Menu.Item>
-      <Menu.Item key="cash">CASH</Menu.Item>
-    </Menu>
-  );
+    const paymentMethods = (
+      <Menu onClick={(e) => setSelectedPaymentMethod(e.key)}>
+        <Menu.Item key="">ALL</Menu.Item>
+        <Menu.Item key="qris">QRIS</Menu.Item>
+        <Menu.Item key="cash">CASH</Menu.Item>
+      </Menu>
+    );
 
-  // Table columns
-  const columns: ColumnsType<DataType> = [
-    {
-      title: <div style={{ textAlign: "center" }}>No</div>,
-      dataIndex: "no",
-      key: "no",
-      align: "center",
-      width: "10%",
-    },
-    {
-      title: <div style={{ textAlign: "center" }}>No Order</div>,
-      dataIndex: "no_order",
-      key: "no_order",
-      align: "center",
-      width: "15%",
-    },
-    {
-      title: <div style={{ textAlign: "center" }}>Name Order</div>,
-      dataIndex: "name_order",
-      key: "name_order",
-      align: "center",
-      width: "15%",
-    },
-    {
-      title: <div style={{ textAlign: "center" }}>Payment Method</div>,
-      dataIndex: "payment_method",
-      key: "payment_method",
-      align: "center",
-      width: "15%",
-    },
-    {
-      title: <div style={{ textAlign: "center" }}>Total Transaction</div>,
-      dataIndex: "total_price_transaction",
-      key: "total_price_transaction",
-      align: "center",
-      width: "25%",
-    },
-    {
-      title: <div style={{ textAlign: "center" }}>Status</div>,
-      dataIndex: "status_payment",
-      key: "status_payment",
-      align: "center",
-      width: "10%",
-    },
-    {
-      title: <div style={{ textAlign: "center" }}>Action</div>,
-      key: "action",
-      align: "center",
-      width: "10%",
-      render: (value) => (
-        <Space size="middle">
-          <Button
-            icon={<EyeOutlined style={{ color: "#543310" }} />}
-            type="link"
-            onClick={() => handleViewDetailTransaction(value.key)}
-          />
-        </Space>
-      ),
-    },
-  ];
+    // Table columns
+    const columns: ColumnsType<DataType> = [
+      {
+        title: <div style={{ textAlign: "center" }}>No</div>,
+        dataIndex: "no",
+        key: "no",
+        align: "center",
+        width: "10%",
+      },
+      {
+        title: <div style={{ textAlign: "center" }}>No Order</div>,
+        dataIndex: "no_order",
+        key: "no_order",
+        align: "center",
+        width: "15%",
+      },
+      {
+        title: <div style={{ textAlign: "center" }}>Name Order</div>,
+        dataIndex: "name_order",
+        key: "name_order",
+        align: "center",
+        width: "15%",
+      },
+      {
+        title: <div style={{ textAlign: "center" }}>Payment Method</div>,
+        dataIndex: "payment_method",
+        key: "payment_method",
+        align: "center",
+        width: "15%",
+      },
+      {
+        title: <div style={{ textAlign: "center" }}>Total Transaction</div>,
+        dataIndex: "total_price_transaction",
+        key: "total_price_transaction",
+        align: "center",
+        width: "25%",
+      },
+      {
+        title: <div style={{ textAlign: "center" }}>Status</div>,
+        dataIndex: "status_payment",
+        key: "status_payment",
+        align: "center",
+        width: "10%",
+      },
+      {
+        title: <div style={{ textAlign: "center" }}>Action</div>,
+        key: "action",
+        align: "center",
+        width: "10%",
+        render: (value) => (
+          <Space size="middle">
+            <Button
+              icon={<EyeOutlined style={{ color: "#543310" }} />}
+              type="link"
+              onClick={() => handleViewDetailTransaction(value.key)}
+            />
+          </Space>
+        ),
+      },
+    ];
 
-  return (
-    <div style={{ padding: "15px", borderRadius: "8px" }}>
-      {/* Filters and Actions */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "16px",
-        }}
-      >
+    return (
+      <div style={{ padding: "15px", borderRadius: "8px" }}>
+        {/* Filters and Actions */}
         <div
           style={{
             display: "flex",
-            gap: "16px",
+            justifyContent: "space-between",
             alignItems: "center",
-            flexWrap: "wrap",
+            marginBottom: "16px",
           }}
         >
-          <Input
-            placeholder="Search name_order"
-            prefix={<SearchOutlined />}
+          <div
             style={{
-              width: "300px",
-              borderRadius: "8px",
-              padding: "0px 16px",
-              height: "40px",
-              borderColor: searchInputBorderColor,
-              boxShadow: searchInputBoxShadow,
-              outline: `1px solid rgba(0, 0, 0, 0.1)`,
-              transition: "border-color 0.3s ease, box-shadow 0.3s ease",
+              display: "flex",
+              gap: "16px",
+              alignItems: "center",
+              flexWrap: "wrap",
             }}
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            onMouseEnter={() => {
-              setSearchInputBorderColor("#543310");
-              setSearchInputBoxShadow("0 4px 12px rgba(84, 51, 16, 0.5)");
-            }}
-            onMouseLeave={() => {
-              setSearchInputBorderColor("transparent");
-              setSearchInputBoxShadow("none");
-            }}
-          />
-          <RangePicker
-            style={{
-              minWidth: "200px",
-            }}
-            onChange={(dates) => {
-              setDateRange(dates as [Dayjs | null, Dayjs | null] | null);
-            }}
-          />
-          <Dropdown
-            overlay={paymentMethods}
-            trigger={["click"]}
-            dropdownRender={(menu) => <div>{menu}</div>}
           >
-            <Button style={{ minWidth: "150px" }}>
-              {selectedPaymentMethod || "Select Payment Method"}
-            </Button>
-          </Dropdown>
-        </div>
-        <Button
-          type="primary"
-          icon={
-            <DownloadOutlined
-              style={{ fontWeight: "bold", fontSize: "20px" }}
-            />
-          }
-          style={{
-            backgroundColor: "#543310",
-            borderRadius: "10px",
-            padding: "0 16px",
-            height: "40px",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-            width: "130px",
-          }}
-          // onClick={handleExport}
-        >
-          <span
-            style={{ fontWeight: "bold", color: "#FFFFFF", fontSize: "16px" }}
-          >
-            Export
-          </span>
-        </Button>
-      </div>
-
-      {/* Table */}
-      <Table
-        columns={columns}
-        bordered
-        dataSource={transactionData}
-        style={{ borderRadius: "8px" }}
-        rowClassName={() => "ant-table-row ant-table-row-level-0"}
-        size="middle"
-        pagination={false}
-        components={{
-          header: {
-            cell: (props: React.HTMLProps<HTMLTableCellElement>) => (
-              <th
-                {...props}
-                style={{ backgroundColor: "#543310", color: "white" }}
-              />
-            ),
-          },
-        }}
-        footer={() => (
-          <div style={{ textAlign: "center" }}>
-            <Pagination
-              current={page}
-              pageSize={pageSize}
-              total={listTransaction?.total}
-              onChange={(page, pageSize) => {
-                setPage(page);
-                setPageSize(pageSize);
+            <Input
+              placeholder="Search name_order"
+              prefix={<SearchOutlined />}
+              style={{
+                width: "300px",
+                borderRadius: "8px",
+                padding: "0px 16px",
+                height: "40px",
+                borderColor: searchInputBorderColor,
+                boxShadow: searchInputBoxShadow,
+                outline: `1px solid rgba(0, 0, 0, 0.1)`,
+                transition: "border-color 0.3s ease, box-shadow 0.3s ease",
+              }}
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              onMouseEnter={() => {
+                setSearchInputBorderColor("#543310");
+                setSearchInputBoxShadow("0 4px 12px rgba(84, 51, 16, 0.5)");
+              }}
+              onMouseLeave={() => {
+                setSearchInputBorderColor("transparent");
+                setSearchInputBoxShadow("none");
               }}
             />
+            <RangePicker
+              style={{
+                minWidth: "200px",
+              }}
+              onChange={(dates) => {
+                setDateRange(dates as [Dayjs | null, Dayjs | null] | null);
+              }}
+            />
+            <Dropdown
+              overlay={paymentMethods}
+              trigger={["click"]}
+              dropdownRender={(menu) => <div>{menu}</div>}
+            >
+              <Button style={{ minWidth: "150px" }}>
+                {selectedPaymentMethod || "Select Payment Method"}
+              </Button>
+            </Dropdown>
           </div>
-        )}
-      />
-      {detailTransactionData && (
-        <DetailTransactionModal
-          isOpen={isDetailModalOpen}
-          onClose={() => setIsDetailModalOpen(false)}
-          id={detailTransactionData}
+          <Button
+            type="primary"
+            icon={
+              <DownloadOutlined
+                style={{ fontWeight: "bold", fontSize: "20px" }}
+              />
+            }
+            style={{
+              backgroundColor: "#543310",
+              borderRadius: "10px",
+              padding: "0 16px",
+              height: "40px",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+              width: "130px",
+            }}
+            onClick={handleExport}
+          >
+            <span
+              style={{ fontWeight: "bold", color: "#FFFFFF", fontSize: "16px" }}
+            >
+              Export
+            </span>
+          </Button>
+        </div>
+
+        {/* Table */}
+        <Table
+          columns={columns}
+          bordered
+          dataSource={transactionData}
+          style={{ borderRadius: "8px" }}
+          rowClassName={() => "ant-table-row ant-table-row-level-0"}
+          size="middle"
+          pagination={false}
+          components={{
+            header: {
+              cell: (props: React.HTMLProps<HTMLTableCellElement>) => (
+                <th
+                  {...props}
+                  style={{ backgroundColor: "#543310", color: "white" }}
+                />
+              ),
+            },
+          }}
+          footer={() => (
+            <div style={{ textAlign: "center" }}>
+              <Pagination
+                current={page}
+                pageSize={pageSize}
+                total={listTransaction?.total}
+                onChange={(page, pageSize) => {
+                  setPage(page);
+                  setPageSize(pageSize);
+                }}
+              />
+            </div>
+          )}
         />
-      )}
-    </div>
-  );
-};
+        {detailTransactionData && (
+          <DetailTransactionModal
+            isOpen={isDetailModalOpen}
+            onClose={() => setIsDetailModalOpen(false)}
+            id={detailTransactionData}
+          />
+        )}
+      </div>
+    );
+  };
 
 export default ManageSalesReport;
