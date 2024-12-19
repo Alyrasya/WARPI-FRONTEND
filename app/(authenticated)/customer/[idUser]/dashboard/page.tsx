@@ -84,9 +84,9 @@ export default function DashboardPage() {
     setPage(1); // Reset page ke 1 saat pencarian berubah
   };
 
-  const handlePaginationChange = (newPage: number) => {
-    setPage(newPage);
-  };
+  // const handlePaginationChange = (newPage: number) => {
+  //   setPage(newPage);
+  // };
   const AddToCart = async (id_product: string[], products?: any) => {
     console.log(id_product); // Debugging log to see the product IDs being passed
     try {
@@ -99,7 +99,7 @@ export default function DashboardPage() {
       message.success("Produk berhasil ditambahkan ke keranjang!");
     } catch (e) {
       console.error("Error adding to cart:", e);
-      message.error("Terjadi kesalahan saat menambahkan produk ke keranjang.");
+      message.error("Product stok kosong  ");
       return e; // Kembalikan error untuk penanganan lebih lanjut
     }
   };
