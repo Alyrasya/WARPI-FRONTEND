@@ -1,10 +1,13 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Input, Button, Card, Pagination } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import { productRepository } from "#/repository/product";
 import { categoryRepository } from "#/repository/category";
+import { orderRepository } from "#/repository/order";
+import { parseJwt } from "#/utils/convert";
+import { message } from "antd";
 
 interface Product {
   id: number;
@@ -16,10 +19,11 @@ interface Product {
 }
 
 export default function DashboardPage() {
-  const [activeTab, setActiveTab] = useState("all");
+  const [activeTab, setActiveTab] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(1);
-  const pageSize = 4;
+  const pageSize = 3;
+  const [idUser, setIdUser] = useState<string>("");
 
   // Function to construct image URL
   const imgProduct = (image: string) =>
@@ -32,24 +36,32 @@ export default function DashboardPage() {
     page: 1,
     page_size: 100, // Ambil semua kategori
   });
-
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      const payload = parseJwt(token);
+      if (payload?.id) {
+        setIdUser(payload.id);
+      }
+    }
+  }, []);
   // Ambil nama kategori dengan status aktif
   const categories =
     categoryData?.data
       ?.filter((category: any) => category.status_category === "active") // Filter kategori aktif
       ?.map((category: any) => category.category_name) || [];
-  const categoryTabs = ["all", ...categories];
+  const categoryTabs = [...categories];
 
   // Fetch products from API
   const { data: listProducts } = productRepository.hooks.useGetAllProduct({
     page: page,
     page_size: pageSize,
     product_name: searchQuery,
-    category_name: activeTab === "all" ? "" : activeTab, // Set category_name menjadi "" saat activeTab "all"
+    category_name: activeTab === "All" ? "" : activeTab, // Set category_name menjadi "" saat activeTab "all"
   });
 
   // Filter produk berdasarkan status_product "active"
-  const products =
+  const product =
     listProducts?.data
       ?.filter((product: Product) => product.status_product === "active")
       ?.map((product: Product) => ({
@@ -60,7 +72,7 @@ export default function DashboardPage() {
         category: product.category,
       })) || [];
 
-  const totalProducts = products.length; // Total produk hanya yang aktif
+  const totalProducts = listProducts?.total || 4; // Total produk hanya yang aktif
 
   const handleTabChange = (key: string) => {
     setActiveTab(key);
@@ -72,8 +84,24 @@ export default function DashboardPage() {
     setPage(1); // Reset page ke 1 saat pencarian berubah
   };
 
-  const handlePaginationChange = (newPage: number) => {
-    setPage(newPage);
+  // const handlePaginationChange = (newPage: number) => {
+  //   setPage(newPage);
+  // };
+  const AddToCart = async (id_product: string[], products?: any) => {
+    console.log(id_product); // Debugging log to see the product IDs being passed
+    try {
+      // Panggil metode addToCart dari orderRepository
+      const response = await orderRepository.api.addToCart(idUser, {
+        id_product,
+      });
+
+      // Tampilkan alert jika berhasil
+      message.success("Produk berhasil ditambahkan ke keranjang!");
+    } catch (e) {
+      console.error("Error adding to cart:", e);
+      message.error("Product stok kosong  ");
+      return e; // Kembalikan error untuk penanganan lebih lanjut
+    }
   };
 
   return (
@@ -88,7 +116,6 @@ export default function DashboardPage() {
           onChange={(e) => onSearch(e.target.value)}
         />
       </div>
-
       {/* Tabs for All Categories */}
       <div className="flex justify-center space-x-2 mb-6">
         {categoryTabs.map((tab) => (
@@ -106,11 +133,11 @@ export default function DashboardPage() {
           </div>
         ))}
       </div>
-
       {/* Product Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {products.map((product: any) => (
+        {product.map((product: any) => (
           <Card
+            style={{ width: "100%" }}
             key={product.key}
             hoverable
             cover={
@@ -126,12 +153,15 @@ export default function DashboardPage() {
               title={product.product_name}
               description={
                 <div>
-                  <p className="text-gray-500">{product.category.category_name}</p>
+                  <p className="text-gray-500">
+                    {product.category.category_name}
+                  </p>
                   <p className="text-#374151">Rp {product.price}</p>
                 </div>
               }
             />
             <Button
+              onClick={() => AddToCart([product.key], product)}
               className="mt-4 w-full"
               style={{ backgroundColor: "#543310", color: "white" }}
             >
@@ -140,16 +170,19 @@ export default function DashboardPage() {
           </Card>
         ))}
       </div>
-
       {/* Pagination */}
       <div className="flex justify-center mt-6">
         <Pagination
-          current={page}
           pageSize={pageSize}
+          current={page}
           total={totalProducts}
-          onChange={handlePaginationChange}
+          onChange={(newPage) => {
+            setPage(newPage);
+          }}
+          showSizeChanger={false}
         />
       </div>
+         
     </div>
   );
 }
