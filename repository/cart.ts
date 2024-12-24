@@ -1,15 +1,14 @@
-import { http } from '#/utils/http'; // Import your custom http utility
-import { get } from 'superagent';
+import { http } from '#/utils/http';
 import useSWR from 'swr';
 
 const url = {
-    getCart(id_user:any){
-        return `/cart/${id_user}`
+    getCartByUserId(id_user: string){
+        return `/cart/getById/${id_user}`
     }
 }
 const hooks = {
-    getCart(id_user:any){
-        return useSWR(url.getCart(id_user),http.fetcher)
+    useGetCartByUserId(id_user: string){
+        return useSWR(url.getCartByUserId(id_user),http.fetcher)
     }
 }
 export const cartRepository={

@@ -1,204 +1,279 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { orderRepository } from "#/repository/order";
-import { parseJwt } from "#/utils/convert";
 import { DeleteOutlined, LeftOutlined } from "@ant-design/icons";
-import {
-  Card,
-  Spin,
-  Empty,
-  InputNumber,
-  Button,
-  Row,
-  Col,
-  message,
-} from "antd";
-import { usePathname } from "next/navigation";
-import useSWR, { mutate } from "swr";
+import { Card, Col, Empty, Row, Button, notification, Input } from "antd";
 import { cartRepository } from "#/repository/cart";
-import { action } from "mobx";
+import { orderRepository } from "#/repository/order";
+import { mutate } from "swr";
+import { usePathname } from "next/navigation";
 import { transactionRepository } from "#/repository/transaction";
+import { useRouter } from "next/navigation";
+
+interface ProductType {
+  product_name: string;
+  price: string;
+  product_photo: string;
+}
+
+interface OrderType {
+  id: string;
+  total_price_order: string;
+  qty: number;
+  product: ProductType;
+}
+
+interface DataType {
+  key: string;
+  product_name: string;
+  price: string;
+  product_photo: string;
+  qty: number;
+  totalPrice: string;
+}
 
 export default function CartPage() {
   const pathname = usePathname();
-  const [idUser, setIdUser] = useState<string>("");
-
-  // Ambil ID User dari Token
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      const payload = parseJwt(token);
-      if (payload?.id) {
-        console.log("User ID:", payload.id);
-        setIdUser(payload.id);
-      }
-    }
-  }, []);
-  const [cartProducts, setCartProducts] = useState<any[]>([]);
-  console.log("idUser", idUser);
-  const {
-    data: keranjangData,
-    isValidating: isLoading,
-    error,
-    mutate
-  } = cartRepository.hooks.getCart(idUser);
-  // console.log(keranjangData?.order)
+  const id = pathname?.split("/")[2];
+  const router = useRouter();
   const imgProduct = (image: string) =>
     `${
       process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3222"
     }/category/upload/${image}`;
-  {
-    keranjangData?.order.map((order: any) => console.log(order?.id));
-  }
-  const deleteOrder = async (id_order: any) => {
-    if (!id_order) {
-      message.error("Order ID is invalid.");
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      router.push("/home");
       return;
     }
+  });
 
+  const { data: listCart } = cartRepository.hooks.useGetCartByUserId(id || "");
+
+  const [cartData, setCartData] = useState<DataType[]>([]);
+
+  useEffect(() => {
+    if (listCart?.order) {
+      const mappedData: DataType[] = listCart.order.map((order: OrderType) => ({
+        key: order.id,
+        product_name: order.product.product_name,
+        price: order.product.price,
+        product_photo: order.product.product_photo,
+        qty: order.qty,
+        totalPrice: (order.qty * parseFloat(order.product.price)).toFixed(2),
+      }));
+      setCartData(mappedData);
+    }
+  }, [listCart]);
+
+  const handleDelete = async (id_order: string) => {
     try {
-      console.log("Sending delete request for order ID:", id_order);
-      const response = await orderRepository.api.deleteOrder(id_order);
-
-      if (response) {
-        message.success("Order deleted successfully!");
-        mutate();
-      } else {
-        message.error("Failed to delete order.");
+      const deleteOrder = await orderRepository.api.deleteOrder(id_order);
+      if (deleteOrder) {
+        openSuccessNotification("Item removed from cart successfully.");
+        mutate(cartRepository.url.getCartByUserId(id || ""));
       }
     } catch (error) {
-      console.error("Error deleting order:", error);
-      message.error("An error occurred while deleting the order.");
+      openErrorNotification("Failed to remove item from cart.");
     }
   };
-  const editQuantity = async(id_order : any, action :string)=>{
+
+  const handleEditQty = async (
+    id_order: string,
+    action?: "increment" | "decrement",
+    qty?: number
+  ) => {
     try {
-      const response = await orderRepository.api.editOrderQuantity(id_order,{action : action});
-      if (response) {
-        message.success(`Quantity ${action === "increment" ? "increased" : "decreased"} successfully!`);
-        mutate(); // Refresh data otomatis setelah perubahan quantity
-      } else {
-        message.error("Failed to update quantity.");
-      }
+      setCartData((prevCartData) =>
+        prevCartData.map((item) => {
+          if (item.key === id_order) {
+            let newQty = qty !== undefined ? qty : item.qty;
+            if (action === "increment") newQty += 1;
+            if (action === "decrement" && item.qty > 1) newQty -= 1;
+            return {
+              ...item,
+              qty: newQty,
+              totalPrice: (newQty * parseFloat(item.price)).toFixed(2), // Make sure totalPrice is a string
+            };
+          }
+          return item;
+        })
+      );
+
+      await orderRepository.api.editOrderQuantity(id_order, {
+        action,
+        qty,
+      });
+
+      openSuccessNotification("Quantity updated successfully.");
+      mutate(cartRepository.url.getCartByUserId(id || ""));
+    } catch (error) {
+      openErrorNotification("Failed to update quantity.");
+    }
+  };
+
+  const handleCreateTransaction = async () => {
+    try {
+      const transactionData = {
+        orders: cartData.map((item) => ({
+          id_order: item.key,
+          qty: item.qty,
+          total_price: parseFloat(item.totalPrice),
+        })),
+      };
   
-      return response;
+      const createTransaction = await transactionRepository.api.createTransaction(id || "", transactionData);
+      if (createTransaction) {
+        openSuccessNotification("Transaction created successfully.");
+        mutate(cartRepository.url.getCartByUserId(id || ""));
+        // window.location.href = `/customer/${id}/payment`;
+      }
     } catch (error) {
-      console.error("Error deleting order:", error);
-      message.error("An error occurred while deleting the order.");
+      openErrorNotification("Failed to create transaction.");
     }
-    
-  }
-  const createTransaction = async (id_user:any )=>{
-    try {
-      const response = await transactionRepository.api.createTransaction(id_user);
-      mutate();
-      return response;
-    } catch (error) {
-      console.error("Error creating transaction:", error);
-      
-    }
-  }
-  const totalPrice = keranjangData?.order.reduce((sum:any, order:any) => {
-    return sum + parseFloat(order?.total_price_order);
-  }, 0);
+  };
+  
+
+  const openSuccessNotification = (message: string) => {
+    notification.success({
+      message: "Success",
+      description: message,
+      placement: "top",
+      duration: 1.3,
+    });
+  };
+
+  const openErrorNotification = (message: string) => {
+    notification.error({
+      message: "Error",
+      description: message,
+      placement: "top",
+      duration: 1.3,
+    });
+  };
+
   return (
-    <div style={{ padding: "16px" }}>
-      <div className="p-4">
-        <div className="flex items-center justify-between">
-          <LeftOutlined
-            className="text-gray-500 text-xl cursor-pointer"
-            onClick={() =>
-              (window.location.href = `/customer/${idUser}/dashboard`)
-            }
-          />
-          <h1 className="text-center text-gray-800 font-medium text-lg flex-grow">
-            My Cart
-          </h1>
-          <div className="w-5"></div>
-        </div>
+    <div className="p-4">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <LeftOutlined
+          className="text-brown-500 text-2xl cursor-pointer"
+          onClick={() => (window.location.href = `/customer/${id}/dashboard`)}
+        />
+        <h1 className="text-center text-brown-700 font-bold text-xl flex-grow">
+          My cart
+        </h1>
+        <div className="w-5"></div>
       </div>
 
-      {isLoading && <Spin size="large" className="my-10 mx-auto" />}
-      {error && <p className="text-red-500">Error loading cart data.</p>}
-
-      {keranjangData?.order.length > 0 ? (
-        <>
-          {/* <div className="flex flex-col">
-            <label htmlFor="orderName" className="text-gray-500 text-sm mb-1">
-              order name
-            </label>
-            <input
-              type="text" 
-              id="orderName"
-              name="orderName"
-              className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter order name"
-            />
-          </div> */}
+      {/* Cart Content */}
+      {cartData.length > 0 ? (
+        <div>
+          {/* Cart Items */}
           <div className="space-y-4">
-            {keranjangData?.order.map((order: any) => (
-              <Card key={order?.id} hoverable className="shadow-md rounded-md">
-                {" "}
+            {cartData.map((cartItem) => (
+              <Card
+                key={cartItem.key}
+                hoverable
+                className="shadow-md rounded-md"
+              >
                 <Row
                   style={{
                     display: "flex",
                     justifyContent: "space-between",
                     alignItems: "center",
-                    gap: "16px", // Mengatur jarak antar kolom
+                    gap: "16px",
                   }}
                 >
                   <Col>
                     <img
-                      alt={order?.product?.product_name}
-                      src={imgProduct(order?.product?.product_photo)}
+                      alt={cartItem.product_name}
+                      src={imgProduct(cartItem.product_photo)}
                       width={80}
                       height={80}
                       className="rounded-md"
                     />
                   </Col>
                   <Col style={{ flexGrow: 1, paddingLeft: "8px" }}>
-                    {" "}
-                    {/* Menempelkan ke kolom pertama */}
-                    <p className="font-semibold text-lg">
-                      {order?.product?.product_name}
-                    </p>
-                    <p className="text-gray-800 font-semibold text-lg">
-                      Rp{order?.product?.price}
-                    </p>
+                    <div className="flex flex-col">
+                      <span className="font-semibold text-lg text-gray-900">
+                        {cartItem.product_name}
+                      </span>
+                      <span className="text-gray-500 font-semibold text-base mt-1">
+                        Rp{cartItem.price}
+                      </span>
+                    </div>
                   </Col>
                   <Col>
-                    <div className="flex flex-col gap-2">
+                    <div className="flex flex-col gap-3">
                       <Button
                         type="text"
                         icon={<DeleteOutlined style={{ color: "red" }} />}
-                        className="text-red-500 text-xl focus:outline-none self-end"
-                        onClick={() => {
-                          deleteOrder(order.id);
-                          console.log(order.id);
-                        }}
+                        className="text-red-500 focus:outline-none self-end"
+                        onClick={() => handleDelete(cartItem.key)}
                       />
-                      {/* Input Number di bawah */}
-                      <div className="flex items-center justify-between">
-                        <div className="mt-4 flex justify-end items-center space-x-2"></div>
-                        <div className="flex items-center border rounded-lg overflow-hidden w-[100px]">
-                          <Button 
-                          className="flex items-center justify-center w-8 h-8 text-gray-600 hover:bg-gray-200 focus:outline-none"
-                          onClick={()=> editQuantity(order.id,'decrement')}>
+                      <div className="flex items-center justify-between mt-2">
+                        <div className="flex items-center border rounded-lg overflow-hidden w-[120px]">
+                          <Button
+                            className="flex items-center justify-center w-8 h-8 text-gray-600 hover:bg-gray-200 focus:outline-none"
+                            onClick={() =>
+                              handleEditQty(cartItem.key, "decrement")
+                            }
+                          >
                             -
                           </Button>
 
-                          {/* Input Field */}
-                          <InputNumber
-                            type="number"
-                            defaultValue={order.qty}
-                            className="w-45 text-center text-lg font-semibold outline-none"
+                          <Input
+                            type="text"
+                            value={cartItem.qty}
+                            className="w-full h-8 text-center text-lg outline-none hover:bg-gray-200"
                             min={1}
-                            style={{ appearance: "textfield" }} // Menghapus spinner default
+                            onBlur={(e) => {
+                              const value = parseInt(e.target.value, 10);
+                              // Jika input valid dan berbeda dengan qty yang ada, update qty
+                              if (value > 0 && value !== cartItem.qty) {
+                                handleEditQty(cartItem.key, undefined, value); // Panggil handleEditQty dengan qty baru
+                              } else if (value <= 0 || isNaN(value)) {
+                                openErrorNotification("Invalid quantity.");
+                                // Reset qty jika nilai input invalid
+                                setCartData((prevCartData) =>
+                                  prevCartData.map((item) =>
+                                    item.key === cartItem.key
+                                      ? { ...item, qty: cartItem.qty } // Reset qty ke nilai sebelumnya jika invalid
+                                      : item
+                                  )
+                                );
+                              }
+                            }}
+                            onChange={(e) => {
+                              const value = parseInt(e.target.value, 10);
+                              // Update qty dalam state local untuk sementara waktu (sebelum blur)
+                              if (value > 0 && value !== cartItem.qty) {
+                                handleEditQty(cartItem.key, undefined, value); // Panggil handleEditQty dengan qty baru
+                              } else if (value <= 0 || isNaN(value)) {
+                                openErrorNotification("Invalid quantity.");
+                                // Reset qty jika nilai input invalid
+                                setCartData((prevCartData) =>
+                                  prevCartData.map((item) =>
+                                    item.key === cartItem.key
+                                      ? { ...item, qty: cartItem.qty } // Reset qty ke nilai sebelumnya jika invalid
+                                      : item
+                                  )
+                                );
+                              }
+                            }}
+                            style={{
+                              appearance: "textfield",
+                              margin: "0 2px",
+                            }}
                           />
 
-                          <Button 
-                          className="flex items-center justify-center w-8 h-8 text-gray-600 hover:bg-gray-200 focus:outline-none"
-                          onClick={()=> editQuantity(order.id,'increment')}>
+                          <Button
+                            className="flex items-center justify-center w-8 h-8 text-gray-600 hover:bg-gray-200 focus:outline-none"
+                            onClick={() =>
+                              handleEditQty(cartItem.key, "increment")
+                            }
+                          >
                             +
                           </Button>
                         </div>
@@ -210,27 +285,32 @@ export default function CartPage() {
             ))}
           </div>
 
-          <div className="mt-4">
+          <div className="mt-6">
             <div className="flex justify-between items-center text-lg font-semibold">
               <span>Total</span>
               <span>
-                Rp{totalPrice.toFixed(2)}
+                Rp
+                {cartData
+                  .reduce(
+                    (total, item) => total + parseFloat(item.totalPrice),
+                    0
+                  )
+                  .toFixed(2)}
               </span>
             </div>
 
-            <Button
-            onClick={()=> createTransaction(idUser)}
-             className="w-full mt-4 bg-[#543310] text-white py-2 rounded-md" >
+            <Button 
+              className="w-full mt-4 bg-[#543310] text-white py-1 rounded-md"
+              onClick={handleCreateTransaction}
+            >
               Payment
             </Button>
           </div>
-        </>
+        </div>
       ) : (
-        !isLoading && (
-          <div className="flex justify-center items-center h-64">
-            <Empty description="Your cart is empty" />
-          </div>
-        )
+        <div className="flex justify-center items-center h-64">
+          <Empty description="Your cart is empty" />
+        </div>
       )}
     </div>
   );

@@ -1,41 +1,45 @@
 "use client";
-
 import React, { useEffect, useState } from "react";
-import { Input, Button, Card, Pagination } from "antd";
-import { SearchOutlined } from "@ant-design/icons";
+import { Input, Button, Card, Pagination, notification } from "antd";
+import { RightOutlined, SearchOutlined } from "@ant-design/icons";
 import { productRepository } from "#/repository/product";
 import { categoryRepository } from "#/repository/category";
 import { orderRepository } from "#/repository/order";
 import { parseJwt } from "#/utils/convert";
-import { message } from "antd";
+import DetailProductModal from "./DetailProductModal";
+import { useRouter } from "next/navigation";
 
 interface Product {
   id: number;
   product_name: string;
   price: number;
   product_photo: string;
-  category: string;
+  category: { category_name: string }; // Ubah tipe menjadi objek
   status_product: string;
 }
 
 export default function DashboardPage() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(1);
-  const pageSize = 3;
+  const [pageSize, setPageSize] = useState(3);
   const [idUser, setIdUser] = useState<string>("");
 
-  // Function to construct image URL
   const imgProduct = (image: string) =>
     `${
       process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3222"
     }/category/upload/${image}`;
 
-  // Fetch categories from API
+  // Modal Detail
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [detailProductData, setDetailProductData] = useState<any | null>();
+
   const { data: categoryData } = categoryRepository.hooks.useGetAllCategory({
     page: 1,
-    page_size: 100, // Ambil semua kategori
+    page_size: 100,
   });
+
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
@@ -43,25 +47,27 @@ export default function DashboardPage() {
       if (payload?.id) {
         setIdUser(payload.id);
       }
+    } else{
+      router.push("/home");
+      return;
     }
   }, []);
-  // Ambil nama kategori dengan status aktif
+
   const categories =
     categoryData?.data
-      ?.filter((category: any) => category.status_category === "active") // Filter kategori aktif
+      ?.filter((category: any) => category.status_category === "active")
       ?.map((category: any) => category.category_name) || [];
-  const categoryTabs = [...categories];
 
-  // Fetch products from API
+  const categoryTabs = ["All", ...categories];
+
   const { data: listProducts } = productRepository.hooks.useGetAllProduct({
     page: page,
     page_size: pageSize,
     product_name: searchQuery,
-    category_name: activeTab === "All" ? "" : activeTab, // Set category_name menjadi "" saat activeTab "all"
+    category_name: activeTab === "All" ? "" : activeTab,
   });
 
-  // Filter produk berdasarkan status_product "active"
-  const product =
+  const productData =
     listProducts?.data
       ?.filter((product: Product) => product.status_product === "active")
       ?.map((product: Product) => ({
@@ -72,56 +78,61 @@ export default function DashboardPage() {
         category: product.category,
       })) || [];
 
-  const totalProducts = listProducts?.total || 4; // Total produk hanya yang aktif
-
-  const handleTabChange = (key: string) => {
-    setActiveTab(key);
-    setPage(1); // Reset page ke 1 saat kategori berubah
-  };
-
-  const onSearch = (value: string) => {
-    setSearchQuery(value);
-    setPage(1); // Reset page ke 1 saat pencarian berubah
-  };
-
-  // const handlePaginationChange = (newPage: number) => {
-  //   setPage(newPage);
-  // };
-  const AddToCart = async (id_product: string[], products?: any) => {
-    console.log(id_product); // Debugging log to see the product IDs being passed
+  const addToCart = async (id_product: string[]) => {
     try {
       // Panggil metode addToCart dari orderRepository
-      const response = await orderRepository.api.addToCart(idUser, {
+      const newOrder = await orderRepository.api.addToCart(idUser, {
         id_product,
       });
-
-      // Tampilkan alert jika berhasil
-      message.success("Produk berhasil ditambahkan ke keranjang!");
-    } catch (e) {
-      console.error("Error adding to cart:", e);
-      message.error("Product stok kosong  ");
-      return e; // Kembalikan error untuk penanganan lebih lanjut
+      if (newOrder) {
+        openSuccessNotification("Add to cart berhasil");
+      }
+    } catch (error) {
+      openErrorNotification("Add to cart gagal!");
     }
+  };
+
+  const handleViewDetailProduct = (id: string) => {
+    setIsDetailModalOpen(true);
+    setDetailProductData(id);
+  };
+
+  // Success notification
+  const openSuccessNotification = (message: string) => {
+    notification.success({
+      message: "Success",
+      description: message,
+      placement: "top",
+      duration: 1.3,
+    });
+  };
+
+  // Error notification
+  const openErrorNotification = (message: string) => {
+    notification.error({
+      message: "Error",
+      description: message,
+      placement: "top",
+      duration: 1.3,
+    });
   };
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
-      {/* Search and Filter */}
       <div className="flex justify-center items-center mb-4 space-x-16">
         <Input
           placeholder="Search menu"
           prefix={<SearchOutlined style={{ color: "#543310" }} />}
           className="rounded-full w-80"
           allowClear
-          onChange={(e) => onSearch(e.target.value)}
+          onChange={(e) => setSearchQuery(e.target.value)}
         />
       </div>
-      {/* Tabs for All Categories */}
       <div className="flex justify-center space-x-2 mb-6">
         {categoryTabs.map((tab) => (
           <div
             key={tab}
-            onClick={() => handleTabChange(tab)}
+            onClick={() => setActiveTab(tab)}
             className={`cursor-pointer flex items-center justify-center border-2 rounded-md transition-all duration-300 ${
               activeTab === tab
                 ? "border-[#543310] bg-[#543310] text-white"
@@ -133,9 +144,8 @@ export default function DashboardPage() {
           </div>
         ))}
       </div>
-      {/* Product Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {product.map((product: any) => (
+        {productData.map((product: any) => (
           <Card
             style={{ width: "100%" }}
             key={product.key}
@@ -152,16 +162,22 @@ export default function DashboardPage() {
             <Card.Meta
               title={product.product_name}
               description={
-                <div>
-                  <p className="text-gray-500">
-                    {product.category.category_name}
-                  </p>
-                  <p className="text-#374151">Rp {product.price}</p>
+                <div className="flex justify-between items-center">
+                  <div className="flex flex-col items-start">
+                    <p className="text-gray-500">
+                      {product.category?.category_name || "No category"}
+                    </p>
+                    <p className="text-[#374151]">Rp {product.price}</p>
+                  </div>
+                  <RightOutlined
+                    onClick={() => handleViewDetailProduct(product.key)}
+                    className="cursor-pointer text-[#00000] hover:text-[#374151] text-lg mt-7"
+                  />
                 </div>
               }
             />
             <Button
-              onClick={() => AddToCart([product.key], product)}
+              onClick={() => addToCart([product.key])}
               className="mt-4 w-full"
               style={{ backgroundColor: "#543310", color: "white" }}
             >
@@ -170,19 +186,22 @@ export default function DashboardPage() {
           </Card>
         ))}
       </div>
-      {/* Pagination */}
       <div className="flex justify-center mt-6">
         <Pagination
           pageSize={pageSize}
           current={page}
-          total={totalProducts}
-          onChange={(newPage) => {
-            setPage(newPage);
-          }}
+          total={listProducts?.totalCount || 0}
+          onChange={(newPage) => setPage(newPage)}
           showSizeChanger={false}
         />
       </div>
-         
+      {detailProductData && (
+        <DetailProductModal
+          isOpen={isDetailModalOpen}
+          onClose={() => setIsDetailModalOpen(false)}
+          id={detailProductData}
+        />
+      )}
     </div>
   );
 }

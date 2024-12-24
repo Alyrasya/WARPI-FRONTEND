@@ -1,34 +1,43 @@
 import React, { useEffect, useState } from "react";
-import { Modal, Table, Typography, Button, Row, Col, Badge, Divider, Space } from "antd";
-import { CheckCircleOutlined } from "@ant-design/icons";
+import {
+  Modal,
+  Table,
+  Typography,
+  Button,
+  Row,
+  Col,
+  Badge,
+  Divider,
+  Space,
+} from "antd";
+import { CheckCircleOutlined, ClockCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
 import { transactionRepository } from "#/repository/transaction";
 import { ColumnsType } from "antd/es/table";
 
 const { Text } = Typography;
 
-interface OrderType {
+interface Product {
   id: string;
-  qty: number;
-  total_price_order: number;
-  product: {
-    product_name: string;
-    price: number;
-  };
+  product_name: string;
+  description: string;
+  price: string;
+  stock: number;
+  product_photo: string;
+  status_product: string;
+  createdAt: string;
 }
 
 interface TransactionDetail {
   id: string;
   no_order: number;
   name_order: string;
-  total_price_transaction: number;
-  cash: number;
-  change_money: number;
+  total_price_transaction: string;
+  cash: string;
+  change_money: string;
   payment_status: string;
+  method_name: string ;
   createdAt: string;
-  paymentMethod: {
-    method_name: string;
-  };
-  order: OrderType[];
+  products: Product[];
 }
 
 interface DetailTransactionModalProps {
@@ -37,47 +46,72 @@ interface DetailTransactionModalProps {
   onClose: () => void;
 }
 
-const ModalDetailTransaction: React.FC<DetailTransactionModalProps> = ({
+const ModalDetailHistory: React.FC<DetailTransactionModalProps> = ({
   isOpen,
   id,
   onClose,
 }) => {
-  const [transactionDetail, setTransactionDetail] =
-    useState<TransactionDetail | null>(null);
-  
-  const { data: transaction } = transactionRepository.hooks.useGetByIdTransaction(id);
+  const [transactionDetail, setTransactionDetail] = useState<TransactionDetail | null>(null);
+
+  const { data: transaction } = transactionRepository.hooks.useGetByIdDetail(id);
 
   useEffect(() => {
     if (transaction) {
-      setTransactionDetail(transaction);
+      setTransactionDetail(transaction.data);
     }
   }, [transaction]);
 
-  const columns: ColumnsType<OrderType> = [
+  const columns: ColumnsType<Product> = [
     {
       title: <Text strong style={{ fontSize: "14px", textAlign: "center" }}>Items</Text>,
-      dataIndex: ["product", "product_name"],
+      dataIndex: "product_name",
       key: "product_name",
       align: "left",
       render: (value) => <Text style={{ fontSize: "12px", textAlign: "center" }}>{value}</Text>,
     },
     {
-      title: <Text strong style={{ fontSize: "14px", textAlign: "center" }}>Qty</Text>,
-      dataIndex: "qty",
-      key: "qty",
-      align: "center",
-      render: (value) => <Text style={{ fontSize: "12px", textAlign: "center" }}>{value}</Text>,
-    },
-    {
       title: <Text strong style={{ fontSize: "14px", textAlign: "center" }}>Price</Text>,
-      dataIndex: ["product", "price"],
+      dataIndex: "price",
       key: "price",
       align: "right",
-      render: (value: number) => (
-        <Text style={{ fontSize: "12px", textAlign: "center" }}>{value.toLocaleString()}</Text>
-      ),
+      render: (value: string) => <Text style={{ fontSize: "12px", textAlign: "center" }}>{parseFloat(value).toLocaleString()}</Text>,
     },
   ];
+
+  const renderPaymentStatus = () => {
+    const { payment_status } = transactionDetail!;
+    switch (payment_status) {
+      case "paid":
+        return (
+          <>
+            <CheckCircleOutlined style={{ color: "#52c41a", fontSize: 16, marginRight: 5 }} />
+            Paid
+          </>
+        );
+      case "unpaid":
+        return (
+          <>
+            <CloseCircleOutlined style={{ color: "#ff4d4f", fontSize: 16, marginRight: 5 }} />
+            Unpaid
+          </>
+        );
+      default:
+        return (
+          <>
+            <ClockCircleOutlined style={{ color: "#fa8c16", fontSize: 16, marginRight: 5 }} />
+            Pending
+          </>
+        );
+    }
+  };
+
+  const formatCurrency = (value: string) => {
+    const numberValue = parseFloat(value);
+    if (!isNaN(numberValue)) {
+      return `Rp ${numberValue.toLocaleString()}`;
+    }
+    return value;
+  };
 
   return (
     <Modal
@@ -112,18 +146,23 @@ const ModalDetailTransaction: React.FC<DetailTransactionModalProps> = ({
                   textAlign: "center",
                 }}
               />
-              <Text style={{ marginLeft: 12, fontSize: 16, fontWeight: 500}}>
+              <Text style={{ marginLeft: 12, fontSize: 16, fontWeight: 500 }}>
                 {transactionDetail.name_order}
               </Text>
             </Col>
             <Col>
               <Space style={{ textAlign: "center" }}>
                 <span
-                  className="bg-green-100 text-green-500 px-2 py-1 rounded"
+                  className={`px-2 py-1 rounded ${
+                    transactionDetail.payment_status === "paid"
+                      ? "bg-green-100 text-green-500"
+                      : transactionDetail.payment_status === "unpaid"
+                      ? "bg-red-100 text-red-700"
+                      : "bg-orange-100 text-orange-700"
+                  }`}
                   style={{ fontWeight: "bold" }}
                 >
-                <CheckCircleOutlined style={{ color: "#52c41a", fontSize: 16, marginRight: 5, textAlign: "center" }} />
-                  Paid
+                  {renderPaymentStatus()}
                 </span>
               </Space>
             </Col>
@@ -154,9 +193,9 @@ const ModalDetailTransaction: React.FC<DetailTransactionModalProps> = ({
           {/* Order Details */}
           <Table
             columns={columns}
-            dataSource={transactionDetail.order.map((order: any) => ({
-              key: order.id,
-              ...order,
+            dataSource={transactionDetail.products.map((product: Product) => ({
+              key: product.id,
+              ...product,
             }))}
             pagination={false}
             bordered={false}
@@ -165,7 +204,7 @@ const ModalDetailTransaction: React.FC<DetailTransactionModalProps> = ({
               padding: "0 6px",
               margin: 0,
               borderCollapse: "collapse",
-              textAlign: "center"
+              textAlign: "center",
             }}
             className="custom-table"
           />
@@ -173,11 +212,13 @@ const ModalDetailTransaction: React.FC<DetailTransactionModalProps> = ({
 
           {/* Payment Summary */}
           <Space direction="vertical" style={{ width: "100%", padding: "0 16px" }}>
-            {[
-              ["Total", transactionDetail.total_price_transaction],
-              ["Uang Tunai", transactionDetail.cash],
-              ["Kembalian", transactionDetail.change_money],
-              ["Metode", transactionDetail.paymentMethod.method_name],
+            {[["Total", transactionDetail.total_price_transaction], ...(transactionDetail.payment_status === "paid"
+              ? [
+                  ["Uang Tunai", transactionDetail.cash],
+                  ["Kembalian", transactionDetail.change_money],
+                  ["Metode", transactionDetail.method_name]
+                ]
+              : []),
             ].map(([label, value]) => (
               <Row justify="space-between" key={label}>
                 <Col>
@@ -185,9 +226,7 @@ const ModalDetailTransaction: React.FC<DetailTransactionModalProps> = ({
                 </Col>
                 <Col>
                   <Text strong style={{ fontSize: 14 }}>
-                    {typeof value === "number"
-                      ? `Rp ${value.toLocaleString()}`
-                      : value}
+                    {formatCurrency(value as string)}
                   </Text>
                 </Col>
               </Row>
@@ -216,4 +255,4 @@ const ModalDetailTransaction: React.FC<DetailTransactionModalProps> = ({
   );
 };
 
-export default ModalDetailTransaction;
+export default ModalDetailHistory;

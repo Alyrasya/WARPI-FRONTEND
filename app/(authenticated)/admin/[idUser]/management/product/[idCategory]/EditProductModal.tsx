@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Modal, Form, Input, InputNumber, Upload, Button } from "antd";
+import { Modal, Form, Input, InputNumber, Upload, Button, Select } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 
 interface EditProductModalProps {
@@ -10,6 +10,7 @@ interface EditProductModalProps {
     description: string;
     price: number;
     stock: number;
+    status_product: string;
     product_photo: File | null;
   }) => void;
   product: {
@@ -17,6 +18,7 @@ interface EditProductModalProps {
     description?: string;
     price: number;
     stock: number;
+    status_product: string;
     product_photo: string;
   };
 }
@@ -36,6 +38,7 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
         product_name: product.product_name,
         description: product.description,
         price: product.price,
+        status_product: product.status_product,
         stock: product.stock,
       });
 
@@ -61,6 +64,7 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
       description: values.description,
       price: values.price,
       stock: values.stock,
+      status_product: values.status_product,
       product_photo: productPhotoFile || product.product_photo,
     });
 
@@ -121,6 +125,17 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
             placeholder="Enter stock quantity"
             style={{ width: "100%" }}
           />
+        </Form.Item>
+
+        <Form.Item
+            name="status_product"
+            label="Status Product"
+            rules={[{ required: true, message: "Mohon pilih status kategori!" }]}
+          >
+            <Select placeholder="Select Status">
+              <Select.Option value="active">Active</Select.Option>
+              <Select.Option value="inactive">Inactive</Select.Option>
+            </Select>
         </Form.Item>
 
         <Form.Item label="Product Photo">

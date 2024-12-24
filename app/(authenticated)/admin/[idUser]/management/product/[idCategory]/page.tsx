@@ -17,7 +17,6 @@ import { productRepository } from "#/repository/product";
 import EditProductModal from "./EditProductModal";
 import DetailProductModal from "./DetailProductModal";
 
-// Existing DataType interface for products
 interface DataType {
   key: string;
   no: number;
@@ -142,12 +141,14 @@ const ManageMenuProduct = () => {
     description,
     price,
     stock,
+    status_product,
     product_photo,
   }: {
     product_name: string;
     description: string;
     price: number;
     stock: number;
+    status_product: string;
     product_photo: File | null;
   }) => {
     try {
@@ -155,6 +156,7 @@ const ManageMenuProduct = () => {
       formData.append("product_name", product_name);
       formData.append("description", description);
       formData.append("price", String(price));
+      formData.append("status_product", status_product);
       formData.append("stock", String(stock));
       if (product_photo) {
         formData.append("product_photo", product_photo);

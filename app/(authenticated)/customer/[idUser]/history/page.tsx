@@ -1,45 +1,31 @@
 "use client";
-import { Row, Col, Card, Statistic, Modal, Button } from "antd";
-import {
-  DollarOutlined,
-  ShoppingCartOutlined,
-  UserOutlined,
-  FileTextOutlined,
-  BarChartOutlined,
-} from "@ant-design/icons";
+import { Button } from "antd";
 import { transactionRepository } from "#/repository/transaction";
 import { useEffect, useState } from "react";
+import { format } from "date-fns";
 import { usePathname } from "next/navigation";
-import { parseJwt } from "#/utils/convert";
-import DetailTransactionModal from "#/app/(authenticated)/admin/[idUser]/management/report/DetailTransactionModal";
+import ModalDetailHistory from "./DetailTransactionModal";
+import { useRouter } from "next/navigation";
 
 export default function historyPage() {
   const pathname = usePathname();
-  const [idUser, setIdUser] = useState<string>("");
+  const id = pathname?.split("/")[2];
+  const router = useRouter();
 
-  // Ambil ID User dari Token
+  // Modal Detail
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [detailTransactionData, setDetailTransactionData] = useState<any | null>();
+
   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (token) {
-      const payload = parseJwt(token);
-      if (payload?.id) {
-        console.log("User ID:", payload.id);
-        setIdUser(payload.id);
-      }
+    if (!token) {
+      router.push("/home");
+      return;
     }
-  }, []);
+  });
 
-  const {
-    data: keranjangData,
-    isValidating: isLoading,
-    error,
-    mutate,
-  } = transactionRepository.hooks.getAllTransaction(idUser);
-
-  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
-  const [detailTransactionData, setDetailTransactionData] = useState<
-    any | null
-  >();
+  const { data: keranjangData } =
+    transactionRepository.hooks.useGetAllTransactionUser(id || "");
 
   const handleViewDetailTransaction = (id: string) => {
     setDetailTransactionData(id);
@@ -49,10 +35,10 @@ export default function historyPage() {
   return (
     <>
       <div style={{ padding: "16px" }}>
-        <div className="bg-gray-100 min-h-screen p-8">
+        <div className="min-h-screen p-8">
           <div className="max-w-3xl mx-auto">
             <h1 className="text-3xl font-semibold text-center italic text-gray-800">
-              histori pemesanan
+              Histori pemesanan
             </h1>
             <p className="text-center text-gray-600 mb-8">
               lihat pemesanan yang di lakukan
@@ -61,17 +47,19 @@ export default function historyPage() {
             {keranjangData?.map((index: any) => (
               <div
                 key={index}
-                className="bg-white p-6 rounded-lg shadow-md mb-4 relative flex items-center"
+                className="bg-white p-4 rounded-lg shadow-md mb-4 relative flex items-center"
               >
                 {/* Badge Selesai di Kanan Atas */}
                 <span
-                  className={`absolute top-4 right-4 text-sm px-4 py-2 rounded-full ${
+                  className={`absolute top-4 right-4 text-sm px-2 py-1 rounded-full ${
                     index.payment_status === "paid"
                       ? "bg-green-100 text-green-700"
                       : index.payment_status === "unpaid"
                       ? "bg-red-100 text-red-700"
                       : index.payment_status === "success"
                       ? "bg-blue-100 text-blue-700"
+                      : index.payment_status === "pending"
+                      ? "bg-orange-100 text-orange-700"
                       : "bg-gray-100 text-gray-700"
                   }`}
                 >
@@ -81,12 +69,15 @@ export default function historyPage() {
                     ? "Unpaid"
                     : index.payment_status === "success"
                     ? "Success"
-                    : "pending"}
+                    : index.payment_status === "pending"
+                    ? "Pending"
+                    : "Unknown"}
                 </span>
 
                 {/* Konten Kiri: Icon dan Informasi */}
                 <div className="flex items-center flex-grow">
-                  <div className="bg-gray-200 p-4 rounded-full flex items-center justify-center">
+                  {/* Lingkaran Sempurna */}
+                  <div className="bg-gray-200 h-12 w-30 rounded-full flex items-center justify-center">
                     <span className="text-4xl text-gray-600">💰</span>
                   </div>
                   <div className="ml-4 flex-grow">
@@ -95,19 +86,34 @@ export default function historyPage() {
                     </h2>
                     {/* Konten Kanan: Tanggal dan Tombol Back */}
                     <div className="flex justify-between items-center">
-                      <p className="text-gray-500 mb-4">{index.createdAt}</p>
+                      <p className="text-gray-500 mb-4">
+                        {format(
+                          new Date(index.createdAt),
+                          "dd MMM yyyy, HH:mm"
+                        )}{" "}
+                        {/* Format tanggal */}
+                      </p>
 
                       <Button
                         className="text-gray-400 text-xl"
                         onClick={() => {
-                          console.log(
-                            "Button clicked with Transaction ID:",
-                            index.id
-                          ); // Log ID ke konsol
-                          handleViewDetailTransaction(index.id); // Panggil fungsi utama
+                          handleViewDetailTransaction(index.id); 
                         }}
                       >
-                        &gt;
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-6 w-6"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth={2}
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M9 5l7 7-7 7"
+                          />
+                        </svg>
                       </Button>
                     </div>
                   </div>
@@ -118,7 +124,7 @@ export default function historyPage() {
         </div>
       </div>
       {detailTransactionData && (
-        <DetailTransactionModal
+        <ModalDetailHistory
           isOpen={isDetailModalOpen}
           onClose={() => setIsDetailModalOpen(false)}
           id={detailTransactionData}

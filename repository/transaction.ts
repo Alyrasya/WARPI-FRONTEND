@@ -1,6 +1,7 @@
 import { http } from "#/utils/http";
 import useSWR from "swr";
 import qs from "qs";
+import { createTracing } from "trace_events";
 
 export interface GetAllTransaction {
   page: number;
@@ -19,30 +20,52 @@ const url = {
   createTransaction(id_user: string) {
     return `/transaction/create/${id_user}`;
   },
-  getAllTransaction(id_user : any){
-    return `/transaction/transaction/${id_user}`;
+
+  getAllTransactionUser(id_user : any){
+    return `/transaction/getAll/${id_user}`;
+  },
+
+  getAllTransaction(params: GetAllTransaction){   
+    return `/transaction/getAll?${qs.stringify(params)}`;
+  },
+
+  getByIdDetail(id: string){
+    return `/transaction/getDetail/${id}`;
   }
 };
 
-const api = {
-  // Create a new transaction
-  async createTransaction(id_user: string) {
-    try {
-      const response = await http.post(url.createTransaction(id_user));
-      return response.body; // Modify according to the actual response structure
-    } catch (error) {
-      console.error("Error creating transaction:", error);
-      throw error;
-    }
-  },
-};
 const hooks = {
-  getAllTransaction(id_user:any){
-      return useSWR(url.getAllTransaction(id_user),http.fetcher)
+  useGetAllTransactionUser(id_user: string){
+      return useSWR(url.getAllTransactionUser(id_user),http.fetcher)
   },
+
   useGetByIdTransaction(id: string) {
     return useSWR(url.getByIdTransaction(id), http.fetcher);
+  },
+
+  useGetAllTransaction(params: GetAllTransaction){
+    return useSWR(url.getAllTransaction(params), http.fetcher);
+  },
+
+  useGetByIdDetail(id: string){
+    return useSWR(url.getByIdDetail(id), http.fetcher);
   }
 }  
 
-export const transactionRepository = { url,api,hooks};
+const api = {
+  // async createTransaction(id_user: string) {
+  //   try {
+  //     const response = await http.post(url.createTransaction(id_user));
+  //     return response.body;
+  //   } catch (error) {
+  //     console.error("Error creating transaction:", error);
+  //     throw error;
+  //   }
+  // },
+
+  async createTransaction(id_user: string, req: any){
+    return http.post(url.createTransaction(id_user)).send(req);
+  },
+};
+
+export const transactionRepository = {url,api,hooks};

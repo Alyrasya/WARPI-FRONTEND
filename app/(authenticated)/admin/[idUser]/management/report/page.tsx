@@ -335,13 +335,11 @@ const ManageSalesReport = () => {
           footer={() => (
             <div style={{ textAlign: "center" }}>
               <Pagination
-                current={page}
                 pageSize={pageSize}
-                total={listTransaction?.total}
-                onChange={(page, pageSize) => {
-                  setPage(page);
-                  setPageSize(pageSize);
-                }}
+                current={page}
+                total={listTransaction?.totalCount || 0}
+                onChange={(newPage) => setPage(newPage)}
+                showSizeChanger={false}
               />
             </div>
           )}
