@@ -38,10 +38,10 @@ export default function historyPage() {
         <div className="min-h-screen p-8">
           <div className="max-w-3xl mx-auto">
             <h1 className="text-3xl font-semibold text-center italic text-gray-800">
-              Histori pemesanan
+              History order
             </h1>
             <p className="text-center text-gray-600 mb-8">
-              lihat pemesanan yang di lakukan
+              see orders made
             </p>
 
             {keranjangData?.map((index: any) => (

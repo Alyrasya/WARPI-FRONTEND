@@ -70,6 +70,13 @@ const ModalDetailHistory: React.FC<DetailTransactionModalProps> = ({
       render: (value) => <Text style={{ fontSize: "12px", textAlign: "center" }}>{value}</Text>,
     },
     {
+      title: <Text strong style={{ fontSize: "14px", textAlign: "center" }}>Qty</Text>,
+      dataIndex: "qty",
+      key: "qty",
+      align: "center",
+      render: (value) => <Text style={{ fontSize: "12px", textAlign: "center" }}>{value}</Text>,
+    },
+    {
       title: <Text strong style={{ fontSize: "14px", textAlign: "center" }}>Price</Text>,
       dataIndex: "price",
       key: "price",

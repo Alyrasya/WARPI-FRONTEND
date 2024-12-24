@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
 interface ProductType {
   product_name: string;
   price: string;
+  stock: number;
   product_photo: string;
 }
 
@@ -26,6 +27,7 @@ interface DataType {
   key: string;
   product_name: string;
   price: string;
+  stock: number;
   product_photo: string;
   qty: number;
   totalPrice: string;
@@ -58,6 +60,7 @@ export default function CartPage() {
         key: order.id,
         product_name: order.product.product_name,
         price: order.product.price,
+        stock: order.product.stock,
         product_photo: order.product.product_photo,
         qty: order.qty,
         totalPrice: (order.qty * parseFloat(order.product.price)).toFixed(2),
@@ -114,6 +117,15 @@ export default function CartPage() {
 
   const handleCreateTransaction = async () => {
     try {
+      // Periksa apakah ada item dengan qty lebih besar dari stock
+      const invalidStock = cartData.find((item) => item.qty > item.stock);
+      if (invalidStock) {
+        openErrorNotification(
+          `Failed to create transaction. Stock tidak mencukupi untuk item: ${invalidStock.product_name}.`
+        );
+        return; // Batalkan proses transaksi
+      }
+
       const transactionData = {
         orders: cartData.map((item) => ({
           id_order: item.key,
@@ -121,18 +133,20 @@ export default function CartPage() {
           total_price: parseFloat(item.totalPrice),
         })),
       };
-  
-      const createTransaction = await transactionRepository.api.createTransaction(id || "", transactionData);
+
+      const createTransaction =
+        await transactionRepository.api.createTransaction(
+          id || "",
+          transactionData
+        );
       if (createTransaction) {
         openSuccessNotification("Transaction created successfully.");
         mutate(cartRepository.url.getCartByUserId(id || ""));
-        // window.location.href = `/customer/${id}/payment`;
       }
     } catch (error) {
       openErrorNotification("Failed to create transaction.");
     }
   };
-  
 
   const openSuccessNotification = (message: string) => {
     notification.success({
@@ -230,12 +244,19 @@ export default function CartPage() {
                             min={1}
                             onBlur={(e) => {
                               const value = parseInt(e.target.value, 10);
-                              // Jika input valid dan berbeda dengan qty yang ada, update qty
-                              if (value > 0 && value !== cartItem.qty) {
-                                handleEditQty(cartItem.key, undefined, value); // Panggil handleEditQty dengan qty baru
+                              if (value > cartItem.stock) {
+                                openErrorNotification("Stock tidak cukup."); // Tampilkan pesan error
+                                setCartData((prevCartData) =>
+                                  prevCartData.map((item) =>
+                                    item.key === cartItem.key
+                                      ? { ...item, qty: cartItem.qty } // Reset qty ke nilai sebelumnya
+                                      : item
+                                  )
+                                );
+                              } else if (value > 0 && value !== cartItem.qty) {
+                                handleEditQty(cartItem.key, undefined, value); // Update qty
                               } else if (value <= 0 || isNaN(value)) {
                                 openErrorNotification("Invalid quantity.");
-                                // Reset qty jika nilai input invalid
                                 setCartData((prevCartData) =>
                                   prevCartData.map((item) =>
                                     item.key === cartItem.key
@@ -247,12 +268,12 @@ export default function CartPage() {
                             }}
                             onChange={(e) => {
                               const value = parseInt(e.target.value, 10);
-                              // Update qty dalam state local untuk sementara waktu (sebelum blur)
-                              if (value > 0 && value !== cartItem.qty) {
-                                handleEditQty(cartItem.key, undefined, value); // Panggil handleEditQty dengan qty baru
+                              if (value > cartItem.stock) {
+                                openErrorNotification("Stock tidak cukup."); // Tampilkan pesan error
+                              } else if (value > 0 && value !== cartItem.qty) {
+                                handleEditQty(cartItem.key, undefined, value); // Update qty
                               } else if (value <= 0 || isNaN(value)) {
                                 openErrorNotification("Invalid quantity.");
-                                // Reset qty jika nilai input invalid
                                 setCartData((prevCartData) =>
                                   prevCartData.map((item) =>
                                     item.key === cartItem.key
@@ -299,9 +320,14 @@ export default function CartPage() {
               </span>
             </div>
 
-            <Button 
-              className="w-full mt-4 bg-[#543310] text-white py-1 rounded-md"
+            <Button
+              className={`w-full mt-4 py-1 rounded-md ${
+                cartData.some((item) => item.qty > item.stock)
+                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  : "bg-[#543310] text-white"
+              }`}
               onClick={handleCreateTransaction}
+              disabled={cartData.some((item) => item.qty > item.stock)} // Disable jika ada stok tidak cukup
             >
               Payment
             </Button>

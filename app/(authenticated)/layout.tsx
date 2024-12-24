@@ -73,12 +73,12 @@ export default function MainLayout({
       } else if (pathname.includes(`/customer/${idUser}/dashboard`)) {
         setSelectedKey("1");
         setPageTitle("Dashboard");
-      } else if (pathname.includes(`/customer/${idUser}/history`)) {
+      } else if (pathname.includes(`/customer/${idUser}/cart`)) {
         setSelectedKey("2");
-        setPageTitle("History");
-      } else if (pathname.includes(`/customer/${idUser}/keranjang`)) {
+        setPageTitle("Cart");
+      } else if (pathname.includes(`/customer/${idUser}/history`)) {
         setSelectedKey("3");
-        setPageTitle("Keranjang");
+        setPageTitle("History");
       }
     }
   }, [pathname, idUser]);
@@ -204,10 +204,10 @@ export default function MainLayout({
       },
       {
         key: "2",
-        icon: <HistoryOutlined />,
-        label: "History",
+        icon: <ShoppingCartOutlined />,
+        label: "Cart",
         onClick: () =>
-          handleMenuClick("2", `/customer/${idUser}/history`, "History"),
+          handleMenuClick("2", `/customer/${idUser}/cart`, "Cart"),
         style: {
           backgroundColor:
             selectedKey === "2" ? "rgba(255, 255, 255, 0.2)" : "transparent",
@@ -215,10 +215,10 @@ export default function MainLayout({
       },
       {
         key: "3",
-        icon: <ShoppingCartOutlined />,
-        label: "Keranjang",
+        icon: <HistoryOutlined />,
+        label: "History",
         onClick: () =>
-          handleMenuClick("3", `/customer/${idUser}/keranjang`, "Keranjang"),
+          handleMenuClick("3", `/customer/${idUser}/history`, "History"),
         style: {
           backgroundColor:
             selectedKey === "3" ? "rgba(255, 255, 255, 0.2)" : "transparent",

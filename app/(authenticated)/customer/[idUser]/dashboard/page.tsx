@@ -14,7 +14,7 @@ interface Product {
   product_name: string;
   price: number;
   product_photo: string;
-  category: { category_name: string }; // Ubah tipe menjadi objek
+  category: { category_name: string };
   status_product: string;
 }
 
